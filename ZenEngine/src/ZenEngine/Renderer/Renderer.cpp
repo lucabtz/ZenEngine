@@ -1,56 +1,35 @@
 #include "Renderer.h"
 
-#include "RenderCommand.h"
-
 namespace ZenEngine
 {
+
     void Renderer::Init(const std::unique_ptr<Window> &inWindow)
     {
-        mRenderThreadRunning = true;
-        mRenderThread = std::thread([this, &inWindow] 
-        {
-            mRendererAPI = RendererAPI::Create();
-            mRenderContext = RenderContext::Create(inWindow->GetNativeWindow());
-            mRenderContext->Init();
-            mRendererAPI->Init();
-            RenderLoop(); 
-        });
+        mRendererAPI = RendererAPI::Create();
+        mRenderContext = RenderContext::Create(inWindow->GetNativeWindow());
+        mRenderContext->Init();
+        mRendererAPI->Init();
+        mEditorGUI = std::make_unique<EditorGUI>();
+        mEditorGUI->Init();
     }
 
     void Renderer::Shutdown()
     {
-        mRenderThreadRunning = false;
-        mRenderThread.join();
+        mEditorGUI->Shutdown();
     }
 
-    void Renderer::ExecuteCommands()
+    void Renderer::Submit(const std::shared_ptr<class VertexArray> &inVertexArray)
     {
-        std::lock_guard guard(mQueueMutex);
-        while (!mCommandQueue.empty())
-        {
-            auto cmd = std::move(mCommandQueue.front());
-            mCommandQueue.pop();
-            ZE_CORE_TRACE("Executing {}", cmd->ToString());
-            cmd->Execute(mRendererAPI);
-        }
+        Get().mRendererAPI->DrawIndexed(inVertexArray);
     }
 
-
-    void Renderer::RenderLoop()
+    void RenderCommand::Clear()
     {
-        while (mRenderThreadRunning || !mCommandQueue.empty())
-        {
-            ExecuteCommands();
-        }
+        Renderer::Get().GetRendererAPI()->Clear();
     }
 
-    void DrawIndexed::Execute(const std::unique_ptr<RendererAPI> &inAPI) const
+    void RenderCommand::SetClearColor(const glm::vec4 &inColor)
     {
-        if (mCount == 0)
-            inAPI->DrawIndexed(mVAContainer->Resource);
-        else
-            inAPI->DrawIndexed(mVAContainer->Resource, mCount);
+        Renderer::Get().GetRendererAPI()->SetClearColor(inColor);
     }
-
 }
-    

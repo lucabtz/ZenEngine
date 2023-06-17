@@ -1,8 +1,5 @@
 {
     "cmake.sourceDirectory": "${workspaceFolder}",
-    "cmake.configureSettings": {
-        "CMAKE_BUILD_TYPE": "Debug"
-    },
     "files.associations": {
         "vector": "cpp",
         "algorithm": "cpp",

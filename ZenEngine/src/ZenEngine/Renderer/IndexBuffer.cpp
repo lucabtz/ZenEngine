@@ -18,19 +18,9 @@ namespace ZenEngine
 		return nullptr;
     }
 
-	IMPLEMENT_METHOD(IndexBuffer_Create, IndexBuffer)
-	{
-		mResource->Resource = IndexBuffer::Create(Indices.data(), Count);
-	}
-
-	IMPLEMENT_METHOD(IndexBuffer_Bind, IndexBuffer)
-	{
-		mResource->Resource->Bind();
-	}
-
-	IMPLEMENT_METHOD(IndexBuffer_Unbind, IndexBuffer)
-	{
-		mResource->Resource->Unbind();
-	}
+    std::shared_ptr<IndexBuffer> IndexBuffer::Create(const std::vector<uint32_t> &inIndices)
+    {
+        return Create(inIndices.data(), inIndices.size());
+    }
 
 }

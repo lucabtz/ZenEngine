@@ -5,42 +5,40 @@ using namespace ZenEngine;
 class SandboxLayer : public Layer
 {
 public:
+    SandboxLayer() : Layer("SandboxLayer") {}
+
     virtual void OnAttach() override
     {
-        mShader = ShaderProxy::Create("resources/Shaders/Magenta.hlsl");
+        mShader = Shader::Create("resources/Shaders/Magenta.hlsl");
 
         BufferLayout layout{
             { ShaderDataType::Float3, "Position" }
         };
-        auto vb = VertexBufferProxy::Create({ 
+        float vertices[9] = { 
             -0.5f, -0.5f, 0.0f,
             0.5f, -0.5f, 0.0f,
             0.0f,  0.5f, 0.0f
-        }, 9 * sizeof(float));
-        vb.SetLayout(layout);
+        };
+        auto vb = VertexBuffer::Create(vertices, 9 * sizeof(float));
+        vb->SetLayout(layout);
 
-        auto ib = IndexBufferProxy::Create({
-            0, 1, 2
-        }, 3);
+        uint32_t indices[3] = {0, 1, 2};
+        auto ib = IndexBuffer::Create(indices, 3);
 
-        mVA = VertexArrayProxy::Create();
-        mVA.AddVertexBuffer(vb.GetHandle());
-        mVA.SetIndexBuffer(ib.GetHandle());
-
-        Renderer::Get().Submit<SetClearColor>(glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f });
+        mVertexArray = VertexArray::Create();
+        mVertexArray->AddVertexBuffer(vb);
+        mVertexArray->SetIndexBuffer(ib);
     }
 
-    virtual void OnUpdate(float inDeltaTime) override
+    virtual void OnRender(float inDeltaTime) override
     {
-        Renderer::Get().Submit<Clear>();
-        mShader.Bind();
-        Renderer::Get().Submit<DrawIndexed>(mVA.GetHandle());
-        Renderer::Get().Submit<SwapBuffers>();
+        mShader->Bind();
+        Renderer::Submit(mVertexArray);
     }
 
 private:
-    VertexArrayProxy mVA;
-    ShaderProxy mShader;
+    std::shared_ptr<Shader> mShader;
+    std::shared_ptr<VertexArray> mVertexArray;
 };
 
 class SandboxGame : public Game

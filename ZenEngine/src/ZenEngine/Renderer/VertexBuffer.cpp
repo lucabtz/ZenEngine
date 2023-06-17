@@ -32,34 +32,8 @@ namespace ZenEngine
 		return nullptr;
 	}
 
-    IMPLEMENT_METHOD(VertexBuffer_Create1, VertexBuffer)
+    std::shared_ptr<VertexBuffer> VertexBuffer::Create(const std::vector<float> &inVertices)
     {
-		mResource->Resource = VertexBuffer::Create(Size);
+        return Create(inVertices.data(), inVertices.size() * sizeof(float));
     }
-
-    IMPLEMENT_METHOD(VertexBuffer_Create2, VertexBuffer)
-    {
-		mResource->Resource = VertexBuffer::Create(Vertices.data(), Size);
-    }
-
-    IMPLEMENT_METHOD(VertexBuffer_Bind, VertexBuffer)
-    {
-		mResource->Resource->Bind();
-    }
-
-    IMPLEMENT_METHOD(VertexBuffer_Unbind, VertexBuffer)
-    {
-		mResource->Resource->Unbind();
-    }
-
-    IMPLEMENT_METHOD(VertexBuffer_SetData, VertexBuffer)
-    {
-		mResource->Resource->SetData(Data, Size);
-    }
-
-	IMPLEMENT_METHOD(VertexBuffer_SetLayout, VertexBuffer)
-    {
-		mResource->Resource->SetLayout(Layout);
-    }
-
 }

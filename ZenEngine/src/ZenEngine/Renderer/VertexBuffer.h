@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ZenEngine/Core/Macros.h"
-#include "RenderCommand.h"
+#include "Renderer.h"
 
 namespace ZenEngine
 {
@@ -119,52 +119,7 @@ namespace ZenEngine
 
 		static std::shared_ptr<VertexBuffer> Create(uint32_t inSize);
 		static std::shared_ptr<VertexBuffer> Create(const float *inVertices, uint32_t inSize);
-	};
-
-	PROXY(VertexBuffer) 
-	{
-		SETUP_PROXY(VertexBuffer)
-	public:
-		CREATE_METHOD_COMMAND_ONE_PARAM(VertexBuffer_Create1, uint32_t, Size)
-		static Proxy Create(uint32_t inSize) 
-		{ 
-			Proxy p(new Resource);
-			Renderer::Get().Submit<VertexBuffer_Create1>(p.mHandle, inSize);
-			return p;
-		}
-
-		CREATE_METHOD_COMMAND_TWO_PARAM(VertexBuffer_Create2, const std::vector<float>, Vertices, uint32_t, Size)
-		static Proxy Create(const std::vector<float> &inVertices, uint32_t inSize)
-		{
-			Proxy p(new Resource);
-			Renderer::Get().Submit<VertexBuffer_Create2>(p.mHandle, inVertices, inSize);
-			return p;
-		}
-
-		CREATE_METHOD_COMMAND_NO_PARAM(VertexBuffer_Bind)
-		void Bind() const
-		{
-			Renderer::Get().Submit<VertexBuffer_Bind>(mHandle);
-		}
-
-		CREATE_METHOD_COMMAND_NO_PARAM(VertexBuffer_Unbind)
-		void Unbind() const
-		{
-			Renderer::Get().Submit<VertexBuffer_Unbind>(mHandle);
-		}
-
-		CREATE_METHOD_COMMAND_TWO_PARAM(VertexBuffer_SetData, const void *, Data, uint32_t, Size)
-		void SetData(const void* inData, uint32_t inSize)
-		{
-			Renderer::Get().Submit<VertexBuffer_SetData>(mHandle, inData, inSize);
-		}
-
-
-		CREATE_METHOD_COMMAND_ONE_PARAM(VertexBuffer_SetLayout, const BufferLayout, Layout)
-		void SetLayout(const BufferLayout& inLayout)
-		{
-			Renderer::Get().Submit<VertexBuffer_SetLayout>(mHandle, inLayout);
-		}
+		static std::shared_ptr<VertexBuffer> Create(const std::vector<float> &inVertices);
 	};
 
 }

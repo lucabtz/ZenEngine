@@ -20,5 +20,5 @@ Vertex2Pixel VSMain(VertexInfo input)
 // pixel shader function
 float4 PSMain(Vertex2Pixel input) : SV_Target0
 {
-    return float4(1.0f, 0.0f, 0.0f, 1.0f);
+    return float4(1.0f, 0.0f, 1.0f, 1.0f);
 }

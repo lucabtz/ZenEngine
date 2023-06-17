@@ -16,7 +16,9 @@ namespace ZenEngine
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnUpdate(float inDeltaTime) {}
-		virtual void OnEvent(std::unique_ptr<Event> &inEvent) {}
+		virtual void OnRender(float inDeltaTime) {}
+		virtual void OnEvent(const std::unique_ptr<Event> &inEvent) {}
+		virtual void OnRenderEditorGUI() {}
 
 		const std::string &GetName() const { return mName; }
 	protected:

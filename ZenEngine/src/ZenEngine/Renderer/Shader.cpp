@@ -31,24 +31,4 @@ namespace ZenEngine
 		return nullptr;
     }
 
-	IMPLEMENT_METHOD(Shader_Create1, Shader)
-	{
-		mResource->Resource = Shader::Create(Filepath);
-	}
-
-	IMPLEMENT_METHOD(Shader_Create2, Shader)
-	{
-		mResource->Resource = Shader::Create(Name, Src);
-	}
-
-	IMPLEMENT_METHOD(Shader_Bind, Shader)
-	{
-		mResource->Resource->Bind();
-	}
-
-	IMPLEMENT_METHOD(Shader_Unbind, Shader)
-	{
-		mResource->Resource->Bind();
-	}
-
 }

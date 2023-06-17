@@ -16,12 +16,11 @@ namespace ZenEngine
 	enum EventCategory
 	{
 		None = 0,
-		EventCategoryGame           = BIT(0),
-		EventCategoryInput          = BIT(1),
-		EventCategoryKeyboard       = BIT(2),
-		EventCategoryMouse          = BIT(3),
-		EventCategoryMouseButton    = BIT(4),
-        EventCategoryWindow         = BIT(5)
+		EventCategoryInput          = BIT(0),
+		EventCategoryKeyboard       = BIT(1),
+		EventCategoryMouse          = BIT(2),
+		EventCategoryMouseButton    = BIT(3),
+        EventCategoryWindow         = BIT(4)
 	};
 
 #define IMPLEMENT_EVENT_CLASS(eventtype, category) static EventType GetType() { return EventType::eventtype; } \

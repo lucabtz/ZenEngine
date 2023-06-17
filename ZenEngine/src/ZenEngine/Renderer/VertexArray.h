@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "RenderCommand.h"
+#include "Renderer.h"
 
 namespace ZenEngine
 {
@@ -24,41 +24,4 @@ namespace ZenEngine
 		static std::shared_ptr<VertexArray> Create();
 	};
 
-	PROXY(VertexArray)
-	{
-		SETUP_PROXY(VertexArray)
-	public:
-		CREATE_METHOD_COMMAND_NO_PARAM(VertexArray_Create)
-		static Proxy Create()
-		{
-			Proxy p(new Resource);
-			Renderer::Get().Submit<VertexArray_Create>(p.mHandle);
-			return p;
-		}
-
-		CREATE_METHOD_COMMAND_NO_PARAM(VertexArray_Bind)
-		void Bind()
-		{
-			Renderer::Get().Submit<VertexArray_Bind>(mHandle);
-		}
-	
-		CREATE_METHOD_COMMAND_NO_PARAM(VertexArray_Unbind)
-		void Unbind()
-		{
-			Renderer::Get().Submit<VertexArray_Bind>(mHandle);
-		}
-
-		CREATE_METHOD_COMMAND_ONE_PARAM_NO_REF(VertexArray_AddVertexBuffer, RenderResourceContainer<class VertexBuffer> *, VBResource)
-		void AddVertexBuffer(const RenderHandle<class VertexBuffer> &inVBHandle)
-		{
-			Renderer::Get().Submit<VertexArray_AddVertexBuffer>(mHandle, inVBHandle.GetResourceContainer());
-		}
-
-		CREATE_METHOD_COMMAND_ONE_PARAM_NO_REF(VertexArray_SetIndexBuffer, RenderResourceContainer<class IndexBuffer> *, IBResource)
-		void SetIndexBuffer(const RenderHandle<class IndexBuffer> &inIBHandle)
-		{
-			Renderer::Get().Submit<VertexArray_SetIndexBuffer>(mHandle, inIBHandle.GetResourceContainer());
-		}
-
-	};
 }

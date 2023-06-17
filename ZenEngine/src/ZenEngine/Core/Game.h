@@ -6,6 +6,7 @@
 #include "ZenEngine/Core/Macros.h"
 #include "ZenEngine/Core/Window.h"
 #include "ZenEngine/Event/EventBus.h"
+#include "ZenEngine/Editor/EditorGUI.h"
 
 #include "Layer.h"
 
@@ -37,24 +38,35 @@ namespace ZenEngine
         virtual ~Game();
 
         void Init();
-        void Update(float inDeltaTime);
+        void GameRender(float inDeltaTime);
+        void GameUpdate(float inDeltaTime);
 
         void Run();
+
+        void Close();
 
         // Client events
         virtual void OnInitialize() {}
 
         LayerStack &GetLayerStack() { return mLayerStack; }
+
+        std::unique_ptr<Window> &GetWindow() { return mWindow; }
+
+        static Game &Get() { ZE_ASSERT_CORE_MSG(sGameInstance != nullptr, "Game instance not initialized yet!"); return *sGameInstance; }
+        static bool IsRunning() { return Get().mIsRunning; }
     private:
         std::string mName;
         RuntimeInfo mRuntimeInfo;
-        std::unique_ptr<Window> mWindow;
         double mLastFrameTime;
         LayerStack mLayerStack;
 
-        bool mRunning;
+        std::unique_ptr<Window> mWindow;
+
+        bool mIsRunning;
 
         void HandleEvent(std::unique_ptr<Event> &inEvent);
+    
+        static Game *sGameInstance;
     };
 
 }

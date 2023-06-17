@@ -7,13 +7,27 @@ add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/glad)
 
-
 add_library(ZenEngine STATIC ${engine-sources})
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message("Building in DEBUG mode")
-    target_compile_definitions(ZenEngine PUBLIC ZE_DEBUG)
-endif()
+target_compile_definitions(ZenEngine PUBLIC "$<$<CONFIG:Debug>:ZE_DEBUG>")
+target_compile_definitions(ZenEngine PUBLIC "$<$<CONFIG:DebugEditor>:ZE_DEBUG>")
+target_compile_definitions(ZenEngine PUBLIC "$<$<CONFIG:DebugEditor>:WITH_EDITOR>")
+target_compile_definitions(ZenEngine PUBLIC "$<$<CONFIG:Editor>:WITH_EDITOR>")
+
+add_library(ImGUI 
+    vendor/imgui/imconfig.h 
+    vendor/imgui/imgui.h 
+    vendor/imgui/imgui.cpp
+    vendor/imgui/imgui_draw.cpp
+    vendor/imgui/imgui_internal.h
+    vendor/imgui/imgui_widgets.cpp
+    vendor/imgui/imgui_tables.cpp
+    vendor/imgui/imstb_rectpack.h
+    vendor/imgui/imstb_textedit.h
+    vendor/imgui/imstb_truetype.h
+    vendor/imgui/imgui_demo.cpp
+)
+
 
 target_include_directories(ZenEngine PUBLIC src)
-target_link_libraries(ZenEngine spdlog glfw glad Vulkan::shaderc_combined)
+target_link_libraries(ZenEngine spdlog glfw glad Vulkan::shaderc_combined ImGUI)

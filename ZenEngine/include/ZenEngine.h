@@ -24,3 +24,5 @@
 #include "ZenEngine/Renderer/Shader.h"
 #include "ZenEngine/Renderer/VertexArray.h"
 #include "ZenEngine/Renderer/VertexBuffer.h"
+
+#include "ZenEngine/Editor/Editor.h"
