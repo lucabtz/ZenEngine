@@ -53,7 +53,7 @@ namespace ZenEngine
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("DockSpace Demo", &dockspaceOpen, windowFlags);
+		ImGui::Begin("DockSpace", &dockspaceOpen, windowFlags);
 		ImGui::PopStyleVar();
 
 		if (optFullscreen)
@@ -66,8 +66,8 @@ namespace ZenEngine
 		style.WindowMinSize.x = 370.0f;
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
-			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspaceFlags);
+			ImGuiID dockspaceId = ImGui::GetID("DockSpace");
+			ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockspaceFlags);
 		}
 
 		style.WindowMinSize.x = minWinSizeX;
@@ -76,15 +76,15 @@ namespace ZenEngine
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Open Project...", "Ctrl+O")) ZE_CORE_WARN("TODO: OpenProject");
+				if (ImGui::MenuItem("Open Project...")) ZE_CORE_WARN("TODO: OpenProject");
 
 				ImGui::Separator();
 
-				if (ImGui::MenuItem("New Level", "Ctrl+N")) ZE_CORE_WARN("TODO: NewLevel");
+				if (ImGui::MenuItem("New Level")) ZE_CORE_WARN("TODO: NewLevel");
 
-				if (ImGui::MenuItem("Save Level", "Ctrl+S")) ZE_CORE_WARN("TODO: SaveLevel");
+				if (ImGui::MenuItem("Save Level")) ZE_CORE_WARN("TODO: SaveLevel");
 
-				if (ImGui::MenuItem("Save Level As...", "Ctrl+Shift+S")) ZE_CORE_WARN("TODO: SaveLevelAs");
+				if (ImGui::MenuItem("Save Level As...")) ZE_CORE_WARN("TODO: SaveLevelAs");
 
 				ImGui::Separator();
 
@@ -111,11 +111,34 @@ namespace ZenEngine
 		for (const auto &window : mEditorWindows)
 		{
 			if (!window->IsOpen()) continue;
+
 			window->OnInitializeStyle();
-			ImGui::Begin(window->GetName().c_str());
-			window->OnRenderWindow();
+			if (window->CanBeClosed())
+				ImGui::Begin(window->GetName().c_str(), window->GetOpenHandle());
+			else
+				ImGui::Begin(window->GetName().c_str());
+			
+			window->OnRenderWindow();	
 			ImGui::End();
 			window->OnClearStyle();
+		}
+    }
+
+    void Editor::OnUpdate(float inDeltaTime)
+    {
+		for (auto &window : mEditorWindows)
+		{
+			if (!window->IsOpen()) continue;
+			window->OnUpdate(inDeltaTime);
+		}
+	}
+
+    void Editor::OnEvent(const std::unique_ptr<Event> &inEvent)
+    {
+		for (auto &window : mEditorWindows)
+		{
+			if (!window->IsOpen()) continue;
+			window->OnEvent(inEvent);
 		}
     }
 
@@ -143,16 +166,7 @@ namespace ZenEngine
 		if (!mIsOpen)
 		{
 			mIsOpen = true;
-			OnOpen();
 		}
     }
 
-	void EditorWindow::Close()
-	{
-		if (mIsOpen && mCanBeClosed)
-		{
-			mIsOpen = false;
-			OnClose();
-		}
-	}
 }

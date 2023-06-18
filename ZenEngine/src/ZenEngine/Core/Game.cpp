@@ -100,7 +100,7 @@ namespace ZenEngine
             }
 
             GameUpdate(ellapsed);
-            Renderer::SwapBuffers();
+            Renderer::Get().SwapBuffers();
         }
 
     }

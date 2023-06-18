@@ -15,7 +15,6 @@ namespace ZenEngine
 		virtual void Unbind() const = 0;
 
 		virtual void SetInt(const std::string &inName, int inValue) = 0;
-		virtual void SetIntArray(const std::string &inName, int* inValues, uint32_t inCount) = 0;
 		virtual void SetFloat(const std::string &inName, float inValue) = 0;
 		virtual void SetFloat2(const std::string &inName, const glm::vec2 &inValue) = 0;
 		virtual void SetFloat3(const std::string &inName, const glm::vec3 &inValue) = 0;

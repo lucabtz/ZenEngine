@@ -3,7 +3,7 @@ project(ZenEngineEcosystem)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(Vulkan OPTIONAL_COMPONENTS shaderc_combined REQUIRED)
+find_package(Vulkan OPTIONAL_COMPONENTS shaderc_combined SPIRV-Tools REQUIRED)
 
 message("Vulkan includes are at ${Vulkan_INCLUDE_DIRS}")
 

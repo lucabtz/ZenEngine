@@ -28,6 +28,27 @@ add_library(ImGUI
     vendor/imgui/imgui_demo.cpp
 )
 
+if(WIN32)
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(Vulkan_LIB_DIR "$ENV{VULKAN_SDK}/Lib")
+  elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(Vulkan_LIB_DIR "$ENV{VULKAN_SDK}/Lib")
+  endif()
+else()
+    set(Vulkan_LIB_DIR "$ENV{VULKAN_SDK}/lib")
+endif()
 
 target_include_directories(ZenEngine PUBLIC src)
-target_link_libraries(ZenEngine spdlog glfw glad Vulkan::shaderc_combined ImGUI)
+target_link_libraries(ZenEngine 
+    spdlog 
+    glfw 
+    glad 
+    Vulkan::shaderc_combined 
+    Vulkan::SPIRV-Tools 
+    "${Vulkan_LIB_DIR}/spirv-cross-cpp.lib"
+    "${Vulkan_LIB_DIR}/spirv-cross-core.lib"
+    "${Vulkan_LIB_DIR}/spirv-cross-hlsl.lib"
+    "${Vulkan_LIB_DIR}/spirv-cross-glsl.lib"
+    "${Vulkan_LIB_DIR}/spirv-cross-reflect.lib"
+    ImGUI
+)

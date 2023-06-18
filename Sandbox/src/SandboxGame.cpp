@@ -9,31 +9,32 @@ public:
 
     virtual void OnAttach() override
     {
-        mShader = Shader::Create("resources/Shaders/Magenta.hlsl");
+        mShader = Shader::Create("resources/Shaders/FlatColor.hlsl");
 
         BufferLayout layout{
             { ShaderDataType::Float3, "Position" }
         };
         float vertices[9] = { 
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.0f,  0.5f, 0.0f
+            0.0f, 0.0f, 0.0f,
+            -10.0f, 10.0f, 0.0f,
+            -10.0f, -10.0f, 0.0f,
         };
         auto vb = VertexBuffer::Create(vertices, 9 * sizeof(float));
         vb->SetLayout(layout);
 
-        uint32_t indices[3] = {0, 1, 2};
-        auto ib = IndexBuffer::Create(indices, 3);
+        uint32_t indices[6] = {0, 1, 2};
+        auto ib = IndexBuffer::Create(indices, 6);
 
         mVertexArray = VertexArray::Create();
         mVertexArray->AddVertexBuffer(vb);
         mVertexArray->SetIndexBuffer(ib);
+
+        mShader->SetFloat4("Color", { 0.0f, 1.0f, 0.0f, 1.0f });
     }
 
     virtual void OnRender(float inDeltaTime) override
     {
-        mShader->Bind();
-        Renderer::Submit(mVertexArray);
+        Renderer::Get().Submit(mVertexArray, glm::mat4(1.0f), mShader);
     }
 
 private:

@@ -71,28 +71,13 @@ namespace ZenEngine
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
+        io.ConfigWindowsMoveFromTitleBarOnly = true;
 
-        float fontSize = 18.0f;// *2.0f;
-        //io.Fonts->AddFontFromFileTTF("assets/fonts/opensans/OpenSans-Bold.ttf", fontSize);
-        //io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/opensans/OpenSans-Regular.ttf", fontSize);
+        float fontSize = 16.0f;
+        io.Fonts->AddFontFromFileTTF("resources/Fonts/WorkSans/WorkSans-Regular.ttf", fontSize);
 
-        // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         SetDarkThemeColors();
-        //ImGui::StyleColorsClassic();
-
-        // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-        //ImGuiStyle& style = ImGui::GetStyle();
-        //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        //{
-        //    style.WindowRounding = 0.0f;
-        //    style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-        //}
-
-
-        //Application& app = Application::Get();
-        //GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
-        // Setup Platform/Renderer bindings
             
         void *nativeWindow = Game::Get().GetWindow()->GetNativeWindow();
     #ifdef ZE_RENDERER_PLATFORM_OPENGL

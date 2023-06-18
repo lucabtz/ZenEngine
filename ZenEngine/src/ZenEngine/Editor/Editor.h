@@ -11,20 +11,21 @@ namespace ZenEngine
 
         virtual void OnRegister() {}
         virtual void OnRenderWindow() {}
-        virtual void OnOpen() {}
-        virtual void OnClose() {}
         virtual void OnInitializeStyle() {}
         virtual void OnClearStyle() {}
+
+        virtual void OnUpdate(float inDeltaTime) {}
+        virtual void OnEvent(const std::unique_ptr<Event> &inEvent) {}
 
         virtual void OnBeginRenderGame() {}
         virtual void OnEndRenderGame() {}
 
         void Open();
-        void Close();
-
 
         bool IsOpen() { return mIsOpen; }
         bool CanBeClosed() { return mCanBeClosed; }
+
+        bool *GetOpenHandle() { return &mIsOpen; }
 
         const std::string &GetName() { return mName; }
 
@@ -42,6 +43,9 @@ namespace ZenEngine
 
         virtual void OnAttach() override;
         virtual void OnRenderEditorGUI() override;
+        virtual void OnUpdate(float inDeltaTime) override;
+
+        virtual void OnEvent(const std::unique_ptr<Event> &inEvent) override;
 
         void BeginRenderGame();
         void EndRenderGame();

@@ -3,9 +3,14 @@
 #include <shaderc/shaderc.hpp>
 #include <filesystem>
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
+#include <spirv_cross/spirv_hlsl.hpp>
+
 #include "ZenEngine/Core/Filesystem.h"
 #include "ZenEngine/Core/Log.h"
 #include "ZenEngine/Core/Macros.h"
+#include "ZenEngine/ShaderCompiler/ShaderIncluder.h"
+#include "ZenEngine/ShaderCompiler/ShaderReflector.h"
 
 namespace ZenEngine
 {
@@ -46,6 +51,7 @@ namespace ZenEngine
 
     void OpenGLShader::Bind() const
     {
+        if (mUniformBuffer != nullptr) mUniformBuffer->Bind();
         glUseProgram(mRendererId);
     }
 
@@ -54,32 +60,45 @@ namespace ZenEngine
         glUseProgram(0);
     }
 
-    void OpenGLShader::SetInt(const std::string &inName, int inValue)
+    void OpenGLShader::SetUniform(const std::string &inName, void *inData, ShaderReflector::ShaderType inShaderType)
     {
+        if (mUniforms.contains(inName))
+        {
+            auto &uniformData = mUniforms[inName];
+            ZE_ASSERT_CORE_MSG(uniformData.Type == inShaderType, "{} is not at int", inName);
+            ZE_CORE_TRACE("Setting {} {} (size: {}, offset: {})", ShaderReflector::ShaderTypeToString(inShaderType), inName, uniformData.Size, uniformData.Offset);
+            mUniformBuffer->SetData(inData, uniformData.Size, uniformData.Offset);
+        }
     }
 
-    void OpenGLShader::SetIntArray(const std::string &inName, int *inValues, uint32_t inCount)
+    void OpenGLShader::SetInt(const std::string &inName, int inValue)
     {
+        SetUniform(inName, (void*)&inValue, ShaderReflector::ShaderType::Int);
     }
 
     void OpenGLShader::SetFloat(const std::string &inName, float inValue)
     {
+        SetUniform(inName, (void*)&inValue, ShaderReflector::ShaderType::Float);
     }
 
     void OpenGLShader::SetFloat2(const std::string &inName, const glm::vec2 &inValue)
     {
+        SetUniform(inName, (void*)&inValue, ShaderReflector::ShaderType::Float2);
     }
 
     void OpenGLShader::SetFloat3(const std::string &inName, const glm::vec3 &inValue)
     {
+        SetUniform(inName, (void*)&inValue, ShaderReflector::ShaderType::Float3);
     }
 
     void OpenGLShader::SetFloat4(const std::string &inName, const glm::vec4 &inValue)
     {
+        SetUniform(inName, (void*)&inValue, ShaderReflector::ShaderType::Float4);
     }
 
     void OpenGLShader::SetMat4(const std::string &inName, const glm::mat4 &inValue)
     {
+        SetUniform(inName, (void*)&inValue, ShaderReflector::ShaderType::Mat4);
     }
 
     void OpenGLShader::CreateShader(const std::string &inSrc)
@@ -88,12 +107,14 @@ namespace ZenEngine
 
         shaderc::Compiler compiler;
         shaderc::CompileOptions options;
+        options.SetIncluder(std::make_unique<ShaderIncluder>());
         options.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
         options.SetSourceLanguage(shaderc_source_language_hlsl);
-        options.SetOptimizationLevel(shaderc_optimization_level_performance);
         
         // first we have to compile the vertex shader
-        shaderc::SpvCompilationResult vertexRes = compiler.CompileGlslToSpv(inSrc.c_str(), inSrc.length(), shaderc_vertex_shader, mName.c_str(), "VSMain", options);
+        auto preProcessedVertex = compiler.PreprocessGlsl(inSrc, shaderc_vertex_shader, mName.c_str(), options);
+        std::string preProcessedVtxSrc(preProcessedVertex.begin(), preProcessedVertex.end());
+        shaderc::SpvCompilationResult vertexRes = compiler.CompileGlslToSpv(preProcessedVtxSrc.c_str(), preProcessedVtxSrc.length(), shaderc_vertex_shader, mName.c_str(), "VSMain", options);
         if (vertexRes.GetCompilationStatus() != shaderc_compilation_status_success)
         {
             ZE_CORE_ERROR("Failed compiling {} shader vertex: {}", mName, vertexRes.GetErrorMessage());
@@ -101,7 +122,9 @@ namespace ZenEngine
         }
         
         // then we compile the pixel shader
-        shaderc::SpvCompilationResult pixelRes = compiler.CompileGlslToSpv(inSrc.c_str(), inSrc.length(), shaderc_fragment_shader, mName.c_str(), "PSMain", options);
+        auto preProcessedPixel = compiler.PreprocessGlsl(inSrc, shaderc_fragment_shader, mName.c_str(), options);
+        std::string preProcessedPixSrc(preProcessedPixel.begin(), preProcessedPixel.end());
+        shaderc::SpvCompilationResult pixelRes = compiler.CompileGlslToSpv(preProcessedPixSrc.c_str(), preProcessedPixSrc.length(), shaderc_fragment_shader, mName.c_str(), "PSMain", options);
         if (pixelRes.GetCompilationStatus() != shaderc_compilation_status_success)
         {
             ZE_CORE_ERROR("Failed compiling {} shader pixel: {}", mName, pixelRes.GetErrorMessage());
@@ -111,6 +134,11 @@ namespace ZenEngine
         std::vector<uint32_t> vertexShaderSPIRV(vertexRes.cbegin(), vertexRes.cend());
         std::vector<uint32_t> pixelShaderSPIRV(pixelRes.cbegin(), pixelRes.cend());
         
+        PrintReflectInfo(vertexShaderSPIRV, "Vertex");
+        PrintReflectInfo(pixelShaderSPIRV, "Pixel");
+
+        Reflect(vertexShaderSPIRV);
+        Reflect(pixelShaderSPIRV);
 
         // TODO: at the moment we just write files to the cache but the cache is not really used
         // this is useful for SPIR-V visualization and debug but in the future of course the cache should be used
@@ -160,5 +188,38 @@ namespace ZenEngine
 		glDeleteShader(ids[1]);
 
 		mRendererId = program;
+    }
+
+    void OpenGLShader::PrintReflectInfo(std::vector<uint32_t> inSpirvSrc, const std::string &inStageName)
+    {
+        ZE_CORE_INFO("Shader {} {}", mName, inStageName);
+        ShaderReflector reflector(std::move(inSpirvSrc));
+        auto result = reflector.Reflect();
+        ZE_CORE_INFO("Uniform buffers");
+        for (auto &ub : result.UniformBuffers)
+        {
+            ZE_CORE_INFO("\t{}, Size {}, Binding {}", ub.Name, ub.Size, ub.Binding);
+            for (auto &member : ub.Members)
+            {
+                ZE_CORE_INFO("\t\t- {} {}, Size {}", ShaderReflector::ShaderTypeToString(member.Type), member.Name, member.Size);
+            }
+        }
+    }
+
+    void OpenGLShader::Reflect(std::vector<uint32_t> inSpirvSrc)
+    {
+        ShaderReflector reflector(std::move(inSpirvSrc));
+        auto result = reflector.Reflect();
+        auto it = std::find_if(result.UniformBuffers.begin(), result.UniformBuffers.end(), [](auto &ubInfo){ return ubInfo.Name == "$Global"; });
+        if (it != result.UniformBuffers.end())
+        {
+            if (mUniformBuffer == nullptr) mUniformBuffer = UniformBuffer::Create(it->Size, it->Binding);
+            for (auto &uniform : it->Members)
+            {
+                if (mUniforms.contains(uniform.Name)) continue;
+                ZE_CORE_TRACE("Adding uniform {}", uniform.Name);
+                mUniforms[uniform.Name] = uniform;
+            }
+        }
     }
 }
