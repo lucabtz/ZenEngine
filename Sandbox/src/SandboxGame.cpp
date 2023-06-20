@@ -10,8 +10,9 @@ public:
     virtual void OnAttach() override
     {
         mShader = Shader::Create("resources/Shaders/FlatColor.hlsl");
+        auto mesh = AssetManager::Get().LoadAsset<StaticMesh>(9896931308556048904);
 
-        BufferLayout layout{
+        /*BufferLayout layout{
             { ShaderDataType::Float3, "Position" }
         };
         float vertices[9] = { 
@@ -24,10 +25,12 @@ public:
 
         uint32_t indices[6] = {0, 1, 2};
         auto ib = IndexBuffer::Create(indices, 6);
-
-        mVertexArray = VertexArray::Create();
-        mVertexArray->AddVertexBuffer(vb);
-        mVertexArray->SetIndexBuffer(ib);
+*/
+        //mVertexArray = VertexArray::Create();
+        //mVertexArray->AddVertexBuffer(vb);
+        //mVertexArray->SetIndexBuffer(ib);
+        
+         mVertexArray = mesh->CreateVertexArray();
 
         mShader->SetFloat4("Color", { 0.0f, 1.0f, 0.0f, 1.0f });
     }

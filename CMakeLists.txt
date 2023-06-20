@@ -14,6 +14,9 @@ include_directories(ZenEngine/src
     SYSTEM ZenEngine/vendor/glad/include 
     SYSTEM ${Vulkan_INCLUDE_DIRS}
     SYSTEM ZenEngine/vendor/imgui
+    SYSTEM ZenEngine/vendor/entt/src
+    SYSTEM ZenEngine/vendor/objloader
+    SYSTEM ZenEngine/vendor/cereal/include
 )
 
 set(CMAKE_CXX_FLAGS_DEBUGEDITOR "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -30,7 +33,8 @@ set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES};Editor;DebugEditor")
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL$<$<CONFIG:Debug;DebugEditor>:Debug>")
 
-set(DEBUG_CONFIGURATIONS "Debug;DebugEditor")
+set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugEditor")
+
 
 add_subdirectory(ZenEngine)
 add_subdirectory(Sandbox)

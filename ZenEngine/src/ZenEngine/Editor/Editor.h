@@ -57,6 +57,8 @@ namespace ZenEngine
         std::vector<std::unique_ptr<EditorWindow>> mEditorWindows;
 
         static Editor *sEditorInstance;
+
+        void ImportClicked();
     };
     
 }

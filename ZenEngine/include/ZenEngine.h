@@ -26,3 +26,8 @@
 #include "ZenEngine/Renderer/VertexBuffer.h"
 
 #include "ZenEngine/Editor/Editor.h"
+
+#include "ZenEngine/Asset/Asset.h"
+#include "ZenEngine/Asset/AssetManager.h"
+#include "ZenEngine/Asset/StaticMesh.h"
+#include "ZenEngine/Asset/UUID.h"

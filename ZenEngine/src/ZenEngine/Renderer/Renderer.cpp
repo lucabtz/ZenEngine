@@ -34,7 +34,7 @@ namespace ZenEngine
 
     void Renderer::Submit(const std::shared_ptr<class VertexArray> &inVertexArray, const glm::mat4 &inTransform, const std::shared_ptr<Shader> &inShader)
     {
-        mShaderGlobals.ModelMatrix = inTransform;
+        mShaderGlobals.ModelMatrix = glm::inverse(inTransform);
         mShaderGlobalsBuffer->SetData(&mShaderGlobals.ModelMatrix, sizeof(glm::mat4), sizeof(glm::mat4));
         inShader->Bind();
         Get().mRendererAPI->DrawIndexed(inVertexArray);

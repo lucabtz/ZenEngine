@@ -39,16 +39,17 @@ else()
 endif()
 
 target_include_directories(ZenEngine PUBLIC src)
+
 target_link_libraries(ZenEngine 
     spdlog 
     glfw 
     glad 
-    Vulkan::shaderc_combined 
-    Vulkan::SPIRV-Tools 
-    "${Vulkan_LIB_DIR}/spirv-cross-cpp.lib"
-    "${Vulkan_LIB_DIR}/spirv-cross-core.lib"
-    "${Vulkan_LIB_DIR}/spirv-cross-hlsl.lib"
-    "${Vulkan_LIB_DIR}/spirv-cross-glsl.lib"
-    "${Vulkan_LIB_DIR}/spirv-cross-reflect.lib"
     ImGUI
 )
+target_link_libraries(ZenEngine debug "${Vulkan_LIB_DIR}/shaderc_combinedd.lib" optimized "${Vulkan_LIB_DIR}/shaderc_combined.lib")
+target_link_libraries(ZenEngine debug "${Vulkan_LIB_DIR}/spirv-cross-cppd.lib" optimized "${Vulkan_LIB_DIR}/spirv-cross-cpp.lib")
+target_link_libraries(ZenEngine debug "${Vulkan_LIB_DIR}/spirv-cross-cored.lib" optimized "${Vulkan_LIB_DIR}/spirv-cross-core.lib")
+target_link_libraries(ZenEngine debug "${Vulkan_LIB_DIR}/spirv-cross-hlsld.lib" optimized "${Vulkan_LIB_DIR}/spirv-cross-hlsl.lib")
+target_link_libraries(ZenEngine debug "${Vulkan_LIB_DIR}/spirv-cross-glsld.lib" optimized "${Vulkan_LIB_DIR}/spirv-cross-glsl.lib")
+target_link_libraries(ZenEngine debug "${Vulkan_LIB_DIR}/spirv-cross-reflectd.lib" optimized "${Vulkan_LIB_DIR}/spirv-cross-reflect.lib")
+

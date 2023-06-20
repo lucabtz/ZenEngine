@@ -2,8 +2,12 @@
 
 #include <imgui.h>
 #include "ZenEngine/Core/Game.h"
+#include "ZenEngine/Asset/AssetManager.h"
+
+#include "FileDialog.h"
 
 #include "EditorViewport.h"
+#include "AssetManagerInfo.h"
 
 namespace ZenEngine
 {
@@ -19,6 +23,7 @@ namespace ZenEngine
     {
 		ZE_CORE_INFO("Attaching editor");
 		RegisterEditorWindow(std::make_unique<EditorViewport>());
+		RegisterEditorWindow(std::make_unique<AssetManagerInfo>());
     }
 
     void Editor::OnRenderEditorGUI()
@@ -88,6 +93,10 @@ namespace ZenEngine
 
 				ImGui::Separator();
 
+				if (ImGui::MenuItem("Import...")) ImportClicked();
+
+				ImGui::Separator();
+
 				if (ImGui::MenuItem("Exit"))
 					Game::Get().Close();
 				
@@ -122,6 +131,7 @@ namespace ZenEngine
 			ImGui::End();
 			window->OnClearStyle();
 		}
+		ImGui::End();
     }
 
     void Editor::OnUpdate(float inDeltaTime)
@@ -160,6 +170,13 @@ namespace ZenEngine
 		ZE_CORE_INFO("Registered editor window {}", inWindow->GetName());
 		mEditorWindows.push_back(std::move(inWindow));
     }
+
+    void Editor::ImportClicked()
+    {
+		std::string filename = FileDialog::OpenFile("");
+		if (!filename.empty())
+			AssetManager::Get().Import(filename);
+	}
 
     void EditorWindow::Open()
     {

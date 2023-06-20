@@ -4,6 +4,7 @@
 #include "Time.h"
 #include "ZenEngine/Renderer/Renderer.h"
 #include "ZenEngine/Editor/Editor.h"
+#include "ZenEngine/Asset/AssetManager.h"
 
 namespace ZenEngine
 {
@@ -36,6 +37,8 @@ namespace ZenEngine
         
         Renderer::Get().Init(mWindow);
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+
+        AssetManager::Get().Init();
 
         mIsRunning = true;
     }

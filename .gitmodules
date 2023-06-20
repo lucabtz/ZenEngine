@@ -13,3 +13,9 @@
 [submodule "ZenEngine/vendor/imgui"]
 	path = ZenEngine/vendor/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "ZenEngine/vendor/entt"]
+	path = ZenEngine/vendor/entt
+	url = https://github.com/skypjack/entt
+[submodule "ZenEngine/vendor/cereal"]
+	path = ZenEngine/vendor/cereal
+	url = https://github.com/USCiLab/cereal
