@@ -1,6 +1,7 @@
 #include "AssetManagerInfo.h"
 
 #include "ZenEngine/Asset/AssetManager.h"
+#include <imgui.h>
 
 namespace ZenEngine
 {

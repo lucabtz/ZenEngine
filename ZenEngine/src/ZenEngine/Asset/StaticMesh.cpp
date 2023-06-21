@@ -8,8 +8,10 @@
 namespace ZenEngine
 {
 
-    std::shared_ptr<VertexArray> StaticMesh::CreateVertexArray()
+    std::shared_ptr<VertexArray> StaticMesh::CreateOrGetVertexArray()
     {
+        if (mVertexArray != nullptr) return mVertexArray;
+
         BufferLayout layout{
             { ShaderDataType::Float3, "Position" },
             { ShaderDataType::Float2, "TexCoord" },
@@ -20,10 +22,10 @@ namespace ZenEngine
 
         auto ib = IndexBuffer::Create(mIndices.data(), mIndices.size());
 
-        auto va = VertexArray::Create();
-        va->AddVertexBuffer(vb);
-        va->SetIndexBuffer(ib);
-        return va;
+        mVertexArray = VertexArray::Create();
+        mVertexArray->AddVertexBuffer(vb);
+        mVertexArray->SetIndexBuffer(ib);
+        return mVertexArray;
     }
 
     std::vector<std::shared_ptr<AssetType>> OBJImporter::Import(const std::filesystem::path &inFilepath)

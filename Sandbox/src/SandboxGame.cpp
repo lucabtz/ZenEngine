@@ -9,8 +9,8 @@ public:
 
     virtual void OnAttach() override
     {
-        mShader = Shader::Create("resources/Shaders/FlatColor.hlsl");
-        auto mesh = AssetManager::Get().LoadAsset<StaticMesh>(9896931308556048904);
+        //mShader = Shader::Create("resources/Shaders/FlatColor.hlsl");
+        //auto mesh = AssetManager::Get().LoadAsset<StaticMesh>(9896931308556048904);
 
         /*BufferLayout layout{
             { ShaderDataType::Float3, "Position" }
@@ -30,14 +30,14 @@ public:
         //mVertexArray->AddVertexBuffer(vb);
         //mVertexArray->SetIndexBuffer(ib);
         
-         mVertexArray = mesh->CreateVertexArray();
+        //mVertexArray = mesh->CreateOrGetVertexArray();
 
-        mShader->SetFloat4("Color", { 0.0f, 1.0f, 0.0f, 1.0f });
+        //mShader->SetFloat4("Color", { 0.0f, 1.0f, 0.0f, 1.0f });
     }
 
     virtual void OnRender(float inDeltaTime) override
     {
-        Renderer::Get().Submit(mVertexArray, glm::mat4(1.0f), mShader);
+        //Renderer::Get().Submit(mVertexArray, glm::mat4(1.0f), mShader);
     }
 
 private:

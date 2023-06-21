@@ -1,9 +1,6 @@
 #pragma once
 
 #include "Editor.h"
-#include "EditorCamera.h"
-
-#include "ZenEngine/Renderer/Framebuffer.h"
 
 namespace ZenEngine
 {

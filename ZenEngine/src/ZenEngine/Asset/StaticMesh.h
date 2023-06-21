@@ -29,10 +29,12 @@ namespace ZenEngine
         std::vector<Vertex> &GetVertices() { return mVertices; }
         std::vector<uint32_t> &GetIndices() { return mIndices; }
 
-        std::shared_ptr<VertexArray> CreateVertexArray();
+        std::shared_ptr<VertexArray> CreateOrGetVertexArray();
     private:
         std::vector<Vertex> mVertices;
         std::vector<uint32_t> mIndices;
+
+        std::shared_ptr<VertexArray> mVertexArray;
 
         template<typename Archive>
         void Serialize(Archive &inArchive)
