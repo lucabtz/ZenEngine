@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <fstream>
 
-#include "Asset.h"
+#include "AssetType.h"
 #include "UUID.h"
 
 #include "Serialization.h"

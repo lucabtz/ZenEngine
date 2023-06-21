@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "Asset.h"
+#include "AssetType.h"
 
 #include "Serialization.h"
 #include "ZenEngine/Renderer/VertexArray.h"
