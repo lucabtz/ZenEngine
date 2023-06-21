@@ -10,6 +10,7 @@
 #include "ZenEngine/Asset/StaticMesh.h"
 #include "ZenEngine/Renderer/Shader.h"
 #include "Entity.h"
+#include "ZenEngine/Editor/PropertiesWindow.h"
 
 namespace ZenEngine
 {
@@ -24,6 +25,14 @@ namespace ZenEngine
             : Name(inName) 
         {}
     };
+
+    class NameComponentRenderer : public PropertyRendererFor<NameComponent>
+    {
+    public:
+        NameComponentRenderer() : PropertyRendererFor("Name Component") {};
+        virtual void RenderProperties(Entity inSelectedEntity, NameComponent &inNameComponent) override;
+    };
+
 
     struct HierarchyComponent
     {
@@ -57,6 +66,13 @@ namespace ZenEngine
                 * rotation
                 * glm::scale(glm::mat4(1.0f), Scale);
         }
+    };
+
+    class TransformComponentRenderer : public PropertyRendererFor<TransformComponent>
+    {
+    public:
+        TransformComponentRenderer() : PropertyRendererFor("Transform Component") {};
+        virtual void RenderProperties(Entity inSelectedEntity, TransformComponent &inTransformComponent) override;
     };
 
     struct StaticMeshComponent

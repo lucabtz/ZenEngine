@@ -9,6 +9,7 @@
 #include "EditorViewport.h"
 #include "AssetManagerInfo.h"
 #include "SceneHierarchy.h"
+#include "PropertiesWindow.h"
 
 namespace ZenEngine
 {
@@ -26,6 +27,7 @@ namespace ZenEngine
         RegisterEditorWindow(std::make_unique<EditorViewport>());
         RegisterEditorWindow(std::make_unique<AssetManagerInfo>());
         RegisterEditorWindow(std::make_unique<SceneHierarchy>());
+        RegisterEditorWindow(std::make_unique<PropertiesWindow>());
     }
 
     void Editor::OnRenderEditorGUI()
