@@ -30,18 +30,18 @@ namespace ZenEngine
         float mNearClip = 0.1f; 
         float mFarClip = 1000.0f;
 
-		glm::mat4 mViewMatrix;
+        glm::mat4 mViewMatrix;
         glm::mat4 mProjectionMatrix;
-		glm::vec3 mPosition = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 mFocusPoint = { 0.0f, 0.0f, 0.0f };
+        glm::vec3 mPosition = { 0.0f, 0.0f, 0.0f };
+        glm::vec3 mFocusPoint = { 0.0f, 0.0f, 0.0f };
 
-		glm::vec2 mInitialMousePosition = { 0.0f, 0.0f };
+        glm::vec2 mInitialMousePosition = { 0.0f, 0.0f };
 
-		float mDistance = 10.0f;
-		float mPitch = 0.0f;
+        float mDistance = 10.0f;
+        float mPitch = 0.0f;
         float mYaw = 0.0f;
 
-		float mViewportWidth = 1280;
+        float mViewportWidth = 1280;
         float mViewportHeight = 720;
 
         bool mShouldMove = false;

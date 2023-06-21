@@ -10,22 +10,22 @@ namespace ZenEngine
     {
         auto *window = reinterpret_cast<GLFWwindow*>(Game::Get().GetWindow()->GetNativeWindow());
         auto state = glfwGetKey(window, static_cast<int32_t>(inKey));
-		return state == GLFW_PRESS;
+        return state == GLFW_PRESS;
     }
     
     bool GLFWInput::IsMouseButtonPressed(MouseCode inButton)
     {
         auto *window = reinterpret_cast<GLFWwindow*>(Game::Get().GetWindow()->GetNativeWindow());
-		auto state = glfwGetMouseButton(window, static_cast<int32_t>(inButton));
-		return state == GLFW_PRESS;
+        auto state = glfwGetMouseButton(window, static_cast<int32_t>(inButton));
+        return state == GLFW_PRESS;
     }
 
     glm::vec2 GLFWInput::GetMousePosition()
     {
         auto *window = reinterpret_cast<GLFWwindow*>(Game::Get().GetWindow()->GetNativeWindow());
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
 
-		return { (float)xpos, (float)ypos };
+        return { (float)xpos, (float)ypos };
     }
 }

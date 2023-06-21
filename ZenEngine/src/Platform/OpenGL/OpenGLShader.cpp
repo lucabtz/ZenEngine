@@ -162,32 +162,32 @@ namespace ZenEngine
         glSpecializeShader(ids[1], "PSMain", 0, nullptr, nullptr);
         glAttachShader(program, ids[1]);
 
-		glLinkProgram(program);
+        glLinkProgram(program);
 
-		GLint isLinked;
-		glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
-		if (isLinked == GL_FALSE)
-		{
-			GLint maxLength;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+        GLint isLinked;
+        glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+        if (isLinked == GL_FALSE)
+        {
+            GLint maxLength;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
-			std::vector<GLchar> infoLog(maxLength);
-			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
-			ZE_CORE_ERROR("Failed compiling {} shader: {}", mName, infoLog.data());
+            std::vector<GLchar> infoLog(maxLength);
+            glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
+            ZE_CORE_ERROR("Failed compiling {} shader: {}", mName, infoLog.data());
 
-			glDeleteProgram(program);
+            glDeleteProgram(program);
 
-			glDeleteShader(ids[0]);
-			glDeleteShader(ids[1]);
-		}
-		
+            glDeleteShader(ids[0]);
+            glDeleteShader(ids[1]);
+        }
+        
         glDetachShader(program, ids[0]);
-		glDeleteShader(ids[0]);
-		
+        glDeleteShader(ids[0]);
+        
         glDetachShader(program, ids[1]);
-		glDeleteShader(ids[1]);
+        glDeleteShader(ids[1]);
 
-		mRendererId = program;
+        mRendererId = program;
     }
 
     void OpenGLShader::PrintReflectInfo(std::vector<uint32_t> inSpirvSrc, const std::string &inStageName)

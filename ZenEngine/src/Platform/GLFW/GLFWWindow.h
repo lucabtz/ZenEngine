@@ -17,19 +17,19 @@ namespace ZenEngine
     {
     public:
         GLFWWindow(const WindowInfo &inWindowInfo);
-		virtual ~GLFWWindow();
+        virtual ~GLFWWindow();
 
-		virtual void OnUpdate() override;
+        virtual void OnUpdate() override;
 
-		virtual uint32_t GetWidth() const override { return mWindowData.Width; }
-		virtual uint32_t GetHeight() const override { return mWindowData.Height; }
+        virtual uint32_t GetWidth() const override { return mWindowData.Width; }
+        virtual uint32_t GetHeight() const override { return mWindowData.Height; }
 
-		// Window attributes
-		virtual void SetVSync(bool inEnabled) override;
-		virtual bool IsVSync() const override { return mWindowData.VSync; }
+        // Window attributes
+        virtual void SetVSync(bool inEnabled) override;
+        virtual bool IsVSync() const override { return mWindowData.VSync; }
 
         // returns a pointer to the native window whatever that is
-		virtual void* GetNativeWindow() const override { return mWindowHandle; }
+        virtual void* GetNativeWindow() const override { return mWindowHandle; }
 
     private:
         GLFWwindow *mWindowHandle;

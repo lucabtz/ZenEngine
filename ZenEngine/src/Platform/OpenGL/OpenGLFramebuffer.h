@@ -8,36 +8,36 @@
 namespace ZenEngine
 {
     class OpenGLFramebuffer : public Framebuffer
-	{
-	public:
-		OpenGLFramebuffer(const Framebuffer::Properties& inProperties);
-		virtual ~OpenGLFramebuffer();
+    {
+    public:
+        OpenGLFramebuffer(const Framebuffer::Properties& inProperties);
+        virtual ~OpenGLFramebuffer();
 
-		void Invalidate();
+        void Invalidate();
 
-		virtual void Bind() override;
-		virtual void Unbind() override;
+        virtual void Bind() override;
+        virtual void Unbind() override;
 
-		virtual void Resize(uint32_t width, uint32_t height) override;
+        virtual void Resize(uint32_t width, uint32_t height) override;
 
-		virtual uint32_t GetColorAttachmentRendererId(uint32_t inIndex = 0) const override 
-		{ 
-			ZE_ASSERT_CORE_MSG(inIndex < mColorAttachmentsIds.size(), "Invalid index given!"); 
-			return mColorAttachmentsIds[inIndex]; 
-		}
+        virtual uint32_t GetColorAttachmentRendererId(uint32_t inIndex = 0) const override 
+        { 
+            ZE_ASSERT_CORE_MSG(inIndex < mColorAttachmentsIds.size(), "Invalid index given!"); 
+            return mColorAttachmentsIds[inIndex]; 
+        }
 
-		virtual const Properties &GetProperties() const override
-		{ 
-			return mProperties;
-		}
-	private:
-		uint32_t mRendererId = 0;
-		Properties mProperties;
+        virtual const Properties &GetProperties() const override
+        { 
+            return mProperties;
+        }
+    private:
+        uint32_t mRendererId = 0;
+        Properties mProperties;
 
         std::vector<TextureProperties> mColorAttachmentsProperties;
         TextureProperties mDepthAttachmentProperties;
 
-		std::vector<uint32_t> mColorAttachmentsIds;
-		uint32_t mDepthAttachmentId = 0;
-	};
+        std::vector<uint32_t> mColorAttachmentsIds;
+        uint32_t mDepthAttachmentId = 0;
+    };
 }

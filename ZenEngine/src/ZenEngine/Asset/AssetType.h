@@ -13,6 +13,7 @@ namespace ZenEngine
     class AssetType
     {
     public:
+        virtual ~AssetType() = default;
         virtual const class AssetClass &GetAssetClass() const = 0;
     };
 

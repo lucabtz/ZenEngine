@@ -9,28 +9,28 @@
 namespace ZenEngine
 {
     std::shared_ptr<VertexBuffer> VertexBuffer::Create(uint32_t inSize)
-	{
-		switch (RendererAPI::GetAPI())
-		{
-		case RendererAPI::API::None:    ZE_ASSERT_CORE_MSG(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLVertexBuffer>(inSize);
-		}
+    {
+        switch (RendererAPI::GetAPI())
+        {
+        case RendererAPI::API::None:    ZE_ASSERT_CORE_MSG(false, "RendererAPI::None is currently not supported!"); return nullptr;
+        case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLVertexBuffer>(inSize);
+        }
 
-		ZE_ASSERT_CORE_MSG(false, "Unknown RendererAPI!");
-		return nullptr;
-	}
+        ZE_ASSERT_CORE_MSG(false, "Unknown RendererAPI!");
+        return nullptr;
+    }
 
-	std::shared_ptr<VertexBuffer> VertexBuffer::Create(const float *inVertices, uint32_t inSize)
-	{
-		switch (RendererAPI::GetAPI())
-		{
-		case RendererAPI::API::None:    ZE_ASSERT_CORE_MSG(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLVertexBuffer>(inVertices, inSize);
-		}
+    std::shared_ptr<VertexBuffer> VertexBuffer::Create(const float *inVertices, uint32_t inSize)
+    {
+        switch (RendererAPI::GetAPI())
+        {
+        case RendererAPI::API::None:    ZE_ASSERT_CORE_MSG(false, "RendererAPI::None is currently not supported!"); return nullptr;
+        case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLVertexBuffer>(inVertices, inSize);
+        }
 
-		ZE_ASSERT_CORE_MSG(false, "Unknown RendererAPI!");
-		return nullptr;
-	}
+        ZE_ASSERT_CORE_MSG(false, "Unknown RendererAPI!");
+        return nullptr;
+    }
 
     std::shared_ptr<VertexBuffer> VertexBuffer::Create(const std::vector<float> &inVertices)
     {

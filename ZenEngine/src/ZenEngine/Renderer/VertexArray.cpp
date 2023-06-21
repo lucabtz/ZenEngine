@@ -11,13 +11,13 @@ namespace ZenEngine
     std::shared_ptr<VertexArray> VertexArray::Create()
     {
         switch (RendererAPI::GetAPI())
-		{
-		case RendererAPI::API::None:    ZE_ASSERT_CORE_MSG(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLVertexArray>();
-		}
+        {
+        case RendererAPI::API::None:    ZE_ASSERT_CORE_MSG(false, "RendererAPI::None is currently not supported!"); return nullptr;
+        case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLVertexArray>();
+        }
 
-		ZE_ASSERT_CORE_MSG(false, "Unknown RendererAPI!");
-		return nullptr;
+        ZE_ASSERT_CORE_MSG(false, "Unknown RendererAPI!");
+        return nullptr;
     }
 
 }

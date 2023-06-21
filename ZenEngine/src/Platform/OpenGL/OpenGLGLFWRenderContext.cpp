@@ -17,6 +17,6 @@ namespace ZenEngine
 
     void OpenGLGLFWRenderContext::SwapBuffers()
     {
-		    glfwSwapBuffers(mWindowHandle);
+            glfwSwapBuffers(mWindowHandle);
     }
 }

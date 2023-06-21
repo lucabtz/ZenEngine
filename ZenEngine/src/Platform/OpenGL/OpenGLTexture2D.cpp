@@ -42,14 +42,14 @@ namespace ZenEngine
         : mProperties(inProperties)
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &mRendererId);
-		glTextureStorage2D(mRendererId, 1, Texture2DFormatToGLFormat(mProperties.Format), mProperties.Width, mProperties.Height);
+        glTextureStorage2D(mRendererId, 1, Texture2DFormatToGLFormat(mProperties.Format), mProperties.Width, mProperties.Height);
 
-		glTextureParameteri(mRendererId, GL_TEXTURE_MIN_FILTER, Texture2DFilterToGLFilter(mProperties.MinFilter));
-		glTextureParameteri(mRendererId, GL_TEXTURE_MAG_FILTER, Texture2DFilterToGLFilter(mProperties.MagFilter));
+        glTextureParameteri(mRendererId, GL_TEXTURE_MIN_FILTER, Texture2DFilterToGLFilter(mProperties.MinFilter));
+        glTextureParameteri(mRendererId, GL_TEXTURE_MAG_FILTER, Texture2DFilterToGLFilter(mProperties.MagFilter));
 
         // TODO make this a texture property
-		glTextureParameteri(mRendererId, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(mRendererId, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTextureParameteri(mRendererId, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(mRendererId, GL_TEXTURE_WRAP_T, GL_REPEAT);
     }
 
     OpenGLTexture2D::~OpenGLTexture2D()
@@ -60,8 +60,8 @@ namespace ZenEngine
     void OpenGLTexture2D::SetData(void *inData, uint32_t inSize)
     {
         uint32_t bpp = Texture2DFormatBytes(mProperties.Format);
-		ZE_ASSERT_CORE_MSG(inSize == mProperties.Width * mProperties.Height * bpp, "Data must be entire texture!");
-		glTextureSubImage2D(mRendererId, 0, 0, 0, mProperties.Width, mProperties.Height, Texture2DFormatToGLFormat(mProperties.Format), GL_UNSIGNED_BYTE, inData);
+        ZE_ASSERT_CORE_MSG(inSize == mProperties.Width * mProperties.Height * bpp, "Data must be entire texture!");
+        glTextureSubImage2D(mRendererId, 0, 0, 0, mProperties.Width, mProperties.Height, Texture2DFormatToGLFormat(mProperties.Format), GL_UNSIGNED_BYTE, inData);
     }
     void OpenGLTexture2D::Bind(uint32_t inSlot) const
     {

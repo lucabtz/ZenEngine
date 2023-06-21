@@ -46,13 +46,13 @@ namespace ZenEngine
     void Game::GameUpdate(float inDeltaTime)
     {
         for (auto &layer : mLayerStack)
-			layer->OnUpdate(inDeltaTime);
+            layer->OnUpdate(inDeltaTime);
     }
 
     void Game::GameRender(float inDeltaTime)
     {
         for (auto &layer : mLayerStack)
-			layer->OnRender(inDeltaTime);
+            layer->OnRender(inDeltaTime);
     }
 
     void Game::Run()

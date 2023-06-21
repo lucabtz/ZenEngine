@@ -9,9 +9,9 @@ namespace ZenEngine
 {
 
 
-	class Framebuffer
-	{
-	public:
+    class Framebuffer
+    {
+    public:
         enum class TextureFormat
         {
             None = 0,
@@ -57,18 +57,18 @@ namespace ZenEngine
         };
 
 
-		virtual ~Framebuffer() = default;
+        virtual ~Framebuffer() = default;
 
-		virtual void Bind() = 0;
-		virtual void Unbind() = 0;
+        virtual void Bind() = 0;
+        virtual void Unbind() = 0;
 
-		virtual void Resize(uint32_t inWidth, uint32_t inHeight) = 0;
+        virtual void Resize(uint32_t inWidth, uint32_t inHeight) = 0;
 
-		virtual uint32_t GetColorAttachmentRendererId(uint32_t inIndex = 0) const = 0;
+        virtual uint32_t GetColorAttachmentRendererId(uint32_t inIndex = 0) const = 0;
 
-		virtual const Properties &GetProperties() const = 0;
+        virtual const Properties &GetProperties() const = 0;
 
-		static std::shared_ptr<Framebuffer> Create(const Properties& inProperties);
-	};
+        static std::shared_ptr<Framebuffer> Create(const Properties& inProperties);
+    };
 
 }

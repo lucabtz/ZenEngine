@@ -9,9 +9,9 @@
 namespace ZenEngine
 {
     static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
-	{
-		switch (type)
-		{
+    {
+        switch (type)
+        {
         case ShaderDataType::Float:    return GL_FLOAT;
         case ShaderDataType::Float2:   return GL_FLOAT;
         case ShaderDataType::Float3:   return GL_FLOAT;
@@ -23,43 +23,43 @@ namespace ZenEngine
         case ShaderDataType::Int3:     return GL_INT;
         case ShaderDataType::Int4:     return GL_INT;
         case ShaderDataType::Bool:     return GL_BOOL;
-		}
+        }
 
-		ZE_ASSERT_CORE_MSG(false, "Unknown ShaderDataType!");
-		return 0;
-	}
+        ZE_ASSERT_CORE_MSG(false, "Unknown ShaderDataType!");
+        return 0;
+    }
 
-	OpenGLVertexArray::OpenGLVertexArray()
-	{
-		glCreateVertexArrays(1, &mRendererId);
-	}
+    OpenGLVertexArray::OpenGLVertexArray()
+    {
+        glCreateVertexArrays(1, &mRendererId);
+    }
 
-	OpenGLVertexArray::~OpenGLVertexArray()
-	{
-		glDeleteVertexArrays(1, &mRendererId);
-	}
+    OpenGLVertexArray::~OpenGLVertexArray()
+    {
+        glDeleteVertexArrays(1, &mRendererId);
+    }
 
-	void OpenGLVertexArray::Bind() const
-	{
-		glBindVertexArray(mRendererId);
-	}
+    void OpenGLVertexArray::Bind() const
+    {
+        glBindVertexArray(mRendererId);
+    }
 
-	void OpenGLVertexArray::Unbind() const
-	{
-		glBindVertexArray(0);
-	}
+    void OpenGLVertexArray::Unbind() const
+    {
+        glBindVertexArray(0);
+    }
 
-	void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& inVertexBuffer)
-	{
-		ZE_ASSERT_CORE_MSG(inVertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
+    void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& inVertexBuffer)
+    {
+        ZE_ASSERT_CORE_MSG(inVertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
-		glBindVertexArray(mRendererId);
-		inVertexBuffer->Bind();
+        glBindVertexArray(mRendererId);
+        inVertexBuffer->Bind();
 
-		const auto& layout = inVertexBuffer->GetLayout();
-		for (const auto& element : layout)
-		{
-			switch (element.Type)
+        const auto& layout = inVertexBuffer->GetLayout();
+        for (const auto& element : layout)
+        {
+            switch (element.Type)
             {
             case ShaderDataType::Float:
             case ShaderDataType::Float2:
@@ -111,17 +111,17 @@ namespace ZenEngine
             }
             default:
                 ZE_ASSERT_CORE_MSG(false, "Unknown ShaderDataType!");
-			}
-		}
+            }
+        }
 
-		mVertexBuffers.push_back(inVertexBuffer);
-	}
+        mVertexBuffers.push_back(inVertexBuffer);
+    }
 
-	void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer> &indexBuffer)
-	{
-		glBindVertexArray(mRendererId);
-		indexBuffer->Bind();
+    void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer> &indexBuffer)
+    {
+        glBindVertexArray(mRendererId);
+        indexBuffer->Bind();
 
-		mIndexBuffer = indexBuffer;
-	}
+        mIndexBuffer = indexBuffer;
+    }
 }

@@ -24,11 +24,11 @@ namespace ZenEngine
         uint32_t GetHeight() const { return mHeight; }
 
         std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "WindowResizeEvent: (" << mWidth << ", " << mHeight << ")";
-			return ss.str();
-		}
+        {
+            std::stringstream ss;
+            ss << "WindowResizeEvent: (" << mWidth << ", " << mHeight << ")";
+            return ss.str();
+        }
     private:
         uint32_t mWidth;
         uint32_t mHeight;

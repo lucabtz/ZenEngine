@@ -4,7 +4,7 @@
 
 namespace ZenEngine
 {
-	static const uint32_t MaxFramebufferSize = 8192;
+    static const uint32_t MaxFramebufferSize = 8192;
 
     static bool IsDepthFormat(Framebuffer::TextureFormat inFormat)
     {
@@ -85,103 +85,103 @@ namespace ZenEngine
 
 
     OpenGLFramebuffer::~OpenGLFramebuffer()
-	{
-		glDeleteFramebuffers(1, &mRendererId);
-		glDeleteTextures(mColorAttachmentsIds.size(), mColorAttachmentsIds.data());
-		glDeleteTextures(1, &mDepthAttachmentId);
-	}
+    {
+        glDeleteFramebuffers(1, &mRendererId);
+        glDeleteTextures(mColorAttachmentsIds.size(), mColorAttachmentsIds.data());
+        glDeleteTextures(1, &mDepthAttachmentId);
+    }
 
     void OpenGLFramebuffer::Invalidate()
-	{
-		if (mRendererId != 0)
-		{
+    {
+        if (mRendererId != 0)
+        {
             glDeleteFramebuffers(1, &mRendererId);
-			glDeleteTextures(mColorAttachmentsIds.size(), mColorAttachmentsIds.data());
+            glDeleteTextures(mColorAttachmentsIds.size(), mColorAttachmentsIds.data());
             glDeleteTextures(1, &mDepthAttachmentId);
-			
-			mColorAttachmentsIds.clear();
-			mDepthAttachmentId = 0;
-		}
+            
+            mColorAttachmentsIds.clear();
+            mDepthAttachmentId = 0;
+        }
 
-		glCreateFramebuffers(1, &mRendererId);
-		glBindFramebuffer(GL_FRAMEBUFFER, mRendererId);
+        glCreateFramebuffers(1, &mRendererId);
+        glBindFramebuffer(GL_FRAMEBUFFER, mRendererId);
 
-		bool multisample = mProperties.Samples > 1;
+        bool multisample = mProperties.Samples > 1;
 
-		// Attachments
-		if (mColorAttachmentsProperties.size() > 0)
-		{
-			mColorAttachmentsIds.resize(mColorAttachmentsProperties.size());
-			glCreateTextures(multisample?  GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, mColorAttachmentsProperties.size(), mColorAttachmentsIds.data());
+        // Attachments
+        if (mColorAttachmentsProperties.size() > 0)
+        {
+            mColorAttachmentsIds.resize(mColorAttachmentsProperties.size());
+            glCreateTextures(multisample?  GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, mColorAttachmentsProperties.size(), mColorAttachmentsIds.data());
 
-			for (size_t i = 0; i < mColorAttachmentsIds.size(); ++i)
-			{
-				glBindTexture(multisample?  GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, mColorAttachmentsIds[i]);
+            for (size_t i = 0; i < mColorAttachmentsIds.size(); ++i)
+            {
+                glBindTexture(multisample?  GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, mColorAttachmentsIds[i]);
                 switch (mColorAttachmentsProperties[i].Format)
-				{
-				case TextureFormat::RGBA8:
-					AttachColorTexture(mColorAttachmentsIds[i], mProperties.Samples, GL_RGBA8, GL_RGBA, mProperties.Width, mProperties.Height, i);
-					break;
-				case TextureFormat::RedInteger:
-					AttachColorTexture(mColorAttachmentsIds[i], mProperties.Samples, GL_R32I, GL_RED_INTEGER, mProperties.Width, mProperties.Height, i);
-					break;
-				}
-			}
-		}
+                {
+                case TextureFormat::RGBA8:
+                    AttachColorTexture(mColorAttachmentsIds[i], mProperties.Samples, GL_RGBA8, GL_RGBA, mProperties.Width, mProperties.Height, i);
+                    break;
+                case TextureFormat::RedInteger:
+                    AttachColorTexture(mColorAttachmentsIds[i], mProperties.Samples, GL_R32I, GL_RED_INTEGER, mProperties.Width, mProperties.Height, i);
+                    break;
+                }
+            }
+        }
 
-		if (mDepthAttachmentProperties.Format != TextureFormat::None)
-		{
-			glCreateTextures(multisample?  GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, 1, &mDepthAttachmentId);
+        if (mDepthAttachmentProperties.Format != TextureFormat::None)
+        {
+            glCreateTextures(multisample?  GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, 1, &mDepthAttachmentId);
             glBindTexture(multisample?  GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, mDepthAttachmentId);
 
-			switch (mDepthAttachmentProperties.Format)
-			{
-				case TextureFormat::Depth24Stencil8:
-					AttachDepthTexture(mDepthAttachmentId, mProperties.Samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, mProperties.Width, mProperties.Height);
-					break;
-			}
-		}
+            switch (mDepthAttachmentProperties.Format)
+            {
+                case TextureFormat::Depth24Stencil8:
+                    AttachDepthTexture(mDepthAttachmentId, mProperties.Samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, mProperties.Width, mProperties.Height);
+                    break;
+            }
+        }
 
-		
-		if (mColorAttachmentsIds.size() > 1)
-		{
-			ZE_ASSERT_CORE_MSG(mColorAttachmentsIds.size() <= 4, "Too many attachments!");
-			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-			glDrawBuffers(mColorAttachmentsIds.size(), buffers);
-		}
-		else if (mColorAttachmentsIds.empty())
-		{
-			// Only depth-pass
-			glDrawBuffer(GL_NONE);
-		}
-		
+        
+        if (mColorAttachmentsIds.size() > 1)
+        {
+            ZE_ASSERT_CORE_MSG(mColorAttachmentsIds.size() <= 4, "Too many attachments!");
+            GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+            glDrawBuffers(mColorAttachmentsIds.size(), buffers);
+        }
+        else if (mColorAttachmentsIds.empty())
+        {
+            // Only depth-pass
+            glDrawBuffer(GL_NONE);
+        }
+        
 
-		ZE_ASSERT_CORE_MSG(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!");
+        ZE_ASSERT_CORE_MSG(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!");
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
     
     void OpenGLFramebuffer::Bind()
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, mRendererId);
-		glViewport(0, 0, mProperties.Width, mProperties.Height);
-	}
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, mRendererId);
+        glViewport(0, 0, mProperties.Width, mProperties.Height);
+    }
 
-	void OpenGLFramebuffer::Unbind()
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
+    void OpenGLFramebuffer::Unbind()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 
-	void OpenGLFramebuffer::Resize(uint32_t inWidth, uint32_t inHeight)
-	{
-		if (inWidth == 0 || inHeight == 0 || inWidth > MaxFramebufferSize || inHeight > MaxFramebufferSize)
-		{
-			ZE_CORE_WARN("Attempted to rezize framebuffer to {}, {}", inWidth, inHeight);
-			return;
-		}
-		mProperties.Width = inWidth;
-		mProperties.Height = inHeight;
-		Invalidate();
-	}
+    void OpenGLFramebuffer::Resize(uint32_t inWidth, uint32_t inHeight)
+    {
+        if (inWidth == 0 || inHeight == 0 || inWidth > MaxFramebufferSize || inHeight > MaxFramebufferSize)
+        {
+            ZE_CORE_WARN("Attempted to rezize framebuffer to {}, {}", inWidth, inHeight);
+            return;
+        }
+        mProperties.Width = inWidth;
+        mProperties.Height = inHeight;
+        Invalidate();
+    }
 
 }

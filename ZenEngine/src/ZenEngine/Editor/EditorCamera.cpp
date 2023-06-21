@@ -19,21 +19,21 @@ namespace ZenEngine
     void EditorCamera::OnUpdate(float inDeltaTime)
     {
         if (mShouldMove)
-		{
-			const glm::vec2& mouse{ Input::GetMouseX(), Input::GetMouseY() };
-			glm::vec2 delta = (mouse - mInitialMousePosition) * 0.003f;
-			mInitialMousePosition = mouse;
+        {
+            const glm::vec2& mouse{ Input::GetMouseX(), Input::GetMouseY() };
+            glm::vec2 delta = (mouse - mInitialMousePosition) * 0.003f;
+            mInitialMousePosition = mouse;
 
-			if (Input::IsMouseButtonPressed(Mouse::ButtonMiddle))
-				MousePan(delta);
-			else if (Input::IsMouseButtonPressed(Mouse::ButtonLeft))
-				MouseRotate(delta);
-			else if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
-				MouseZoom(delta.y);
-		    
+            if (Input::IsMouseButtonPressed(Mouse::ButtonMiddle))
+                MousePan(delta);
+            else if (Input::IsMouseButtonPressed(Mouse::ButtonLeft))
+                MouseRotate(delta);
+            else if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
+                MouseZoom(delta.y);
+            
             
             UpdateView();
-		}
+        }
 
         if (Input::IsKeyPressed(Key::F))
         {
@@ -45,8 +45,8 @@ namespace ZenEngine
     {
         if (!mShouldMove) return;
         float delta = inDelta * 0.1f;
-		MouseZoom(delta);
-		UpdateView();
+        MouseZoom(delta);
+        UpdateView();
     }
 
     void EditorCamera::Resize(const glm::vec2 &inViewportDimensions)
@@ -79,15 +79,15 @@ namespace ZenEngine
     {
         mPosition = CalculatePosition();
 
-		glm::quat orientation = GetOrientation();
-		mViewMatrix = glm::translate(glm::mat4(1.0f), mPosition) * glm::toMat4(orientation);
-		mViewMatrix = glm::inverse(mViewMatrix);
+        glm::quat orientation = GetOrientation();
+        mViewMatrix = glm::translate(glm::mat4(1.0f), mPosition) * glm::toMat4(orientation);
+        mViewMatrix = glm::inverse(mViewMatrix);
     }
 
     void EditorCamera::UpdateProjection()
     {
         mAspectRatio = mViewportWidth / mViewportHeight;
-		mProjectionMatrix = glm::perspective(mFOV, mAspectRatio, mNearClip, mFarClip);
+        mProjectionMatrix = glm::perspective(mFOV, mAspectRatio, mNearClip, mFarClip);
     }
 
     glm::vec3 EditorCamera::CalculatePosition() const
@@ -117,52 +117,52 @@ namespace ZenEngine
 
 
     std::pair<float, float> EditorCamera::PanSpeed() const
-	{
-		float x = std::min(mViewportWidth / 1000.0f, 2.4f); // max = 2.4f
-		float xFactor = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;
+    {
+        float x = std::min(mViewportWidth / 1000.0f, 2.4f); // max = 2.4f
+        float xFactor = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;
 
-		float y = std::min(mViewportHeight / 1000.0f, 2.4f); // max = 2.4f
-		float yFactor = 0.0366f * (y * y) - 0.1778f * y + 0.3021f;
+        float y = std::min(mViewportHeight / 1000.0f, 2.4f); // max = 2.4f
+        float yFactor = 0.0366f * (y * y) - 0.1778f * y + 0.3021f;
 
-		return { xFactor, yFactor };
-	}
+        return { xFactor, yFactor };
+    }
 
-	float EditorCamera::RotationSpeed() const
-	{
-		return 0.8f;
-	}
+    float EditorCamera::RotationSpeed() const
+    {
+        return 0.8f;
+    }
 
 
     float EditorCamera::ZoomSpeed() const
-	{
-		float distance = mDistance * 0.2f;
-		distance = std::max(distance, 0.0f);
-		float speed = distance * distance;
-		speed = std::min(speed, 100.0f); // max speed = 100
-		return speed;
-	}
+    {
+        float distance = mDistance * 0.2f;
+        distance = std::max(distance, 0.0f);
+        float speed = distance * distance;
+        speed = std::min(speed, 100.0f); // max speed = 100
+        return speed;
+    }
 
     void EditorCamera::MousePan(const glm::vec2 &inDelta)
     {
         auto [xSpeed, ySpeed] = PanSpeed();
-		mFocusPoint += -GetRightDirection() * inDelta.x * xSpeed * mDistance;
-		mFocusPoint += GetUpDirection() * inDelta.y * ySpeed * mDistance;
+        mFocusPoint += -GetRightDirection() * inDelta.x * xSpeed * mDistance;
+        mFocusPoint += GetUpDirection() * inDelta.y * ySpeed * mDistance;
     }
 
     void EditorCamera::MouseRotate(const glm::vec2 &inDelta)
     {
         float yawSign = GetUpDirection().z < 0 ? -1.0f : 1.0f;
-		mYaw += yawSign * inDelta.x * RotationSpeed();
-		mPitch += inDelta.y * RotationSpeed();
+        mYaw += yawSign * inDelta.x * RotationSpeed();
+        mPitch += inDelta.y * RotationSpeed();
     }
 
     void EditorCamera::MouseZoom(float inDelta)
     {
         mDistance -= inDelta * ZoomSpeed();
-		if (mDistance < 1.0f)
-		{
-			mFocusPoint += GetForwardDirection();
-			mDistance = 1.0f;
-		}
+        if (mDistance < 1.0f)
+        {
+            mFocusPoint += GetForwardDirection();
+            mDistance = 1.0f;
+        }
     }
 }

@@ -5,23 +5,23 @@
 namespace ZenEngine
 {
     enum class EventType
-	{
-		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
-		GameTick, GameUpdate, GameRender,
-		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
-	};
+    {
+        None = 0,
+        WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+        GameTick, GameUpdate, GameRender,
+        KeyPressed, KeyReleased, KeyTyped,
+        MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+    };
 
-	enum EventCategory
-	{
-		None = 0,
-		EventCategoryInput          = BIT(0),
-		EventCategoryKeyboard       = BIT(1),
-		EventCategoryMouse          = BIT(2),
-		EventCategoryMouseButton    = BIT(3),
+    enum EventCategory
+    {
+        None = 0,
+        EventCategoryInput          = BIT(0),
+        EventCategoryKeyboard       = BIT(1),
+        EventCategoryMouse          = BIT(2),
+        EventCategoryMouseButton    = BIT(3),
         EventCategoryWindow         = BIT(4)
-	};
+    };
 
 #define IMPLEMENT_EVENT_CLASS(eventtype, category) static EventType GetType() { return EventType::eventtype; } \
     virtual EventType GetEventType() const override { return GetType(); } \
@@ -29,22 +29,22 @@ namespace ZenEngine
     virtual const char *GetName() const override { return #eventtype; }
 
     class Event
-	{
-	public:
-		virtual ~Event() = default;
+    {
+    public:
+        virtual ~Event() = default;
 
-		bool Handled = false;
+        bool Handled = false;
 
-		virtual EventType GetEventType() const = 0;
-		virtual const char* GetName() const = 0;
-		virtual int GetCategoryFlags() const = 0;
-		virtual std::string ToString() const { return GetName(); }
+        virtual EventType GetEventType() const = 0;
+        virtual const char* GetName() const = 0;
+        virtual int GetCategoryFlags() const = 0;
+        virtual std::string ToString() const { return GetName(); }
 
-		bool IsInCategory(EventCategory category)
-		{
-			return GetCategoryFlags() & category;
-		}
-	};
+        bool IsInCategory(EventCategory category)
+        {
+            return GetCategoryFlags() & category;
+        }
+    };
 
     class EventHandler
     {

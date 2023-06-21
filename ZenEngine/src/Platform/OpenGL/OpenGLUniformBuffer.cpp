@@ -8,8 +8,8 @@ namespace ZenEngine
         : mBinding(inBinding)
     {
         glCreateBuffers(1, &mRendererId);
-		glNamedBufferData(mRendererId, inSize, nullptr, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, inBinding, mRendererId);
+        glNamedBufferData(mRendererId, inSize, nullptr, GL_DYNAMIC_DRAW);
+        glBindBufferBase(GL_UNIFORM_BUFFER, inBinding, mRendererId);
     }
 
     OpenGLUniformBuffer::~OpenGLUniformBuffer()

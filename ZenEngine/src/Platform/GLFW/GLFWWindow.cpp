@@ -9,9 +9,9 @@ namespace ZenEngine
 {
 
     static void GLFWErrorCallback(int error, const char* description)
-	{
-		ZE_CORE_ERROR("GLFW Error ({}): {}", error, description);
-	}
+    {
+        ZE_CORE_ERROR("GLFW Error ({}): {}", error, description);
+    }
 
     int GLFWWindow::sGLFWWindowCount = 0;
 
@@ -31,10 +31,10 @@ namespace ZenEngine
 
     void GLFWWindow::SetVSync(bool inEnabled)
     {
-		if (inEnabled)
-			glfwSwapInterval(1);
-		else
-			glfwSwapInterval(0);
+        if (inEnabled)
+            glfwSwapInterval(1);
+        else
+            glfwSwapInterval(0);
         mWindowData.VSync = inEnabled;
     }
 
@@ -71,62 +71,62 @@ namespace ZenEngine
         //SetVSync(true);
 
         glfwSetWindowSizeCallback(mWindowHandle, [](GLFWwindow* window, int width, int height)
-		{
-			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			data.Width = width;
-			data.Height = height;
-		
+        {
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+            data.Width = width;
+            data.Height = height;
+        
             EventBus::Get().PostEvent(std::make_unique<WindowResizeEvent>(width, height));
         });
 
-		glfwSetWindowCloseCallback(mWindowHandle, [](GLFWwindow* window)
-		{			
+        glfwSetWindowCloseCallback(mWindowHandle, [](GLFWwindow* window)
+        {			
             EventBus::Get().PostEvent(std::make_unique<WindowCloseEvent>());
-		});
+        });
 
-		glfwSetKeyCallback(mWindowHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-		{
-			switch (action)
-			{
-			case GLFW_PRESS:
+        glfwSetKeyCallback(mWindowHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+        {
+            switch (action)
+            {
+            case GLFW_PRESS:
                 EventBus::Get().PostEvent(std::make_unique<KeyPressedEvent>(key));
                 break;
-			case GLFW_RELEASE: 
+            case GLFW_RELEASE: 
                 EventBus::Get().PostEvent(std::make_unique<KeyReleasedEvent>(key));
                 break;
-			case GLFW_REPEAT: 
+            case GLFW_REPEAT: 
                 EventBus::Get().PostEvent(std::make_unique<KeyPressedEvent>(key, true));
                 break;
-			}
-		});
+            }
+        });
 
-		glfwSetCharCallback(mWindowHandle, [](GLFWwindow* window, unsigned int keycode)
-		{
+        glfwSetCharCallback(mWindowHandle, [](GLFWwindow* window, unsigned int keycode)
+        {
             EventBus::Get().PostEvent(std::make_unique<KeyTypedEvent>(keycode));
-		});
+        });
 
-		glfwSetMouseButtonCallback(mWindowHandle, [](GLFWwindow* window, int button, int action, int mods)
-		{
-			switch (action)
-			{
-			case GLFW_PRESS: 
+        glfwSetMouseButtonCallback(mWindowHandle, [](GLFWwindow* window, int button, int action, int mods)
+        {
+            switch (action)
+            {
+            case GLFW_PRESS: 
                 EventBus::Get().PostEvent(std::make_unique<MouseButtonPressedEvent>(button));
                 break;
-			case GLFW_RELEASE: 
+            case GLFW_RELEASE: 
                 EventBus::Get().PostEvent(std::make_unique<MouseButtonReleasedEvent>(button));
                 break;
-			}
-		});
+            }
+        });
 
-		glfwSetScrollCallback(mWindowHandle, [](GLFWwindow* window, double xOffset, double yOffset)
-		{
+        glfwSetScrollCallback(mWindowHandle, [](GLFWwindow* window, double xOffset, double yOffset)
+        {
             EventBus::Get().PostEvent(std::make_unique<MouseScrolledEvent>(xOffset, yOffset));
-		});
+        });
 
-		glfwSetCursorPosCallback(mWindowHandle, [](GLFWwindow* window, double xPos, double yPos)
-		{
+        glfwSetCursorPosCallback(mWindowHandle, [](GLFWwindow* window, double xPos, double yPos)
+        {
             EventBus::Get().PostEvent(std::make_unique<MouseMovedEvent>(xPos, yPos));
-		});
+        });
 
     }
 
