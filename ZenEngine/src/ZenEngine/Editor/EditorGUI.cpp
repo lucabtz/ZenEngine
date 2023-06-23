@@ -208,4 +208,50 @@ namespace ZenEngine
 
         ImGui::PopID();
     }
+
+    bool EditorGUI::InputAsset(const std::string &inLabel, const AssetClass *inAssetClass, std::shared_ptr<AssetInstance> &outAsset, float inColumnWidth)
+    {
+        bool ret = false;
+
+        ImGui::PushID(inLabel.c_str());
+
+        ImGui::Columns(2);
+        ImGui::SetColumnWidth(0, inColumnWidth);
+        ImGui::Text(inLabel.c_str());
+        ImGui::NextColumn();
+
+        ImGui::Text("%s", (outAsset != nullptr)? fmt::format("{}", (uint64_t)outAsset->GetAssetId()).c_str() : "Drag an asset here");
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(inAssetClass->Name.c_str()))
+            {
+                UUID assetId = *reinterpret_cast<uint64_t*>(payload->Data);
+                outAsset = AssetManager::Get().LoadAsset(assetId);
+                ret = true;
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        ImGui::Columns(1);
+        
+        ImGui::PopID();
+        return ret;
+    }
+
+
+    void EditorGUI::SelectableText(const std::string &inLabel, const std::string &inText, float inColumnWidth)
+    {
+        ImGui::PushID(inLabel.c_str());
+
+        ImGui::Columns(2);
+        ImGui::SetColumnWidth(0, inColumnWidth);
+        ImGui::Text(inLabel.c_str());
+        ImGui::NextColumn();
+
+        ImGui::InputText("##text", const_cast<char*>(inText.c_str()), inText.size(), ImGuiInputTextFlags_ReadOnly);
+        
+        ImGui::Columns(1);
+
+        ImGui::PopID();
+    }
 }

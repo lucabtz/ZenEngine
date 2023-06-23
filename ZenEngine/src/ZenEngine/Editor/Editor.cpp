@@ -7,7 +7,7 @@
 #include "FileDialog.h"
 
 #include "EditorViewport.h"
-#include "AssetManagerInfo.h"
+#include "AssetManagerDatabase.h"
 #include "SceneHierarchy.h"
 #include "PropertiesWindow.h"
 
@@ -25,7 +25,7 @@ namespace ZenEngine
     {
         ZE_CORE_INFO("Attaching editor");
         RegisterEditorWindow(std::make_unique<EditorViewport>());
-        RegisterEditorWindow(std::make_unique<AssetManagerInfo>());
+        RegisterEditorWindow(std::make_unique<AssetManagerDatabase>());
         RegisterEditorWindow(std::make_unique<SceneHierarchy>());
         RegisterEditorWindow(std::make_unique<PropertiesWindow>());
     }

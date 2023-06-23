@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "Shader.h"
+#include "Material.h"
 
 namespace ZenEngine
 {
@@ -32,11 +33,19 @@ namespace ZenEngine
     {
     }
 
-    void Renderer::Submit(const std::shared_ptr<class VertexArray> &inVertexArray, const glm::mat4 &inTransform, const std::shared_ptr<Shader> &inShader)
+    void Renderer::SubmitWithShader(const std::shared_ptr<class VertexArray> &inVertexArray, const glm::mat4 &inTransform, const std::shared_ptr<Shader> &inShader)
     {
-        mShaderGlobals.ModelMatrix = glm::inverse(inTransform);
+        mShaderGlobals.ModelMatrix = inTransform;
         mShaderGlobalsBuffer->SetData(&mShaderGlobals.ModelMatrix, sizeof(glm::mat4), sizeof(glm::mat4));
         inShader->Bind();
+        Get().mRendererAPI->DrawIndexed(inVertexArray);
+    }
+
+    void Renderer::Submit(const std::shared_ptr<class VertexArray> &inVertexArray, const glm::mat4 &inTransform, const std::shared_ptr<Material> &inMaterial)
+    {
+        mShaderGlobals.ModelMatrix = inTransform;
+        mShaderGlobalsBuffer->SetData(&mShaderGlobals.ModelMatrix, sizeof(glm::mat4), sizeof(glm::mat4));
+        inMaterial->Bind();
         Get().mRendererAPI->DrawIndexed(inVertexArray);
     }
 

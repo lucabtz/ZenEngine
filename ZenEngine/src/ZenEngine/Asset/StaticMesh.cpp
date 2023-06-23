@@ -10,50 +10,53 @@ namespace ZenEngine
 
     std::shared_ptr<VertexArray> StaticMesh::CreateOrGetVertexArray()
     {
-        if (mVertexArray != nullptr) return mVertexArray;
+        if (mVertexArray == nullptr || mTainted)
+        {
+            BufferLayout layout{
+                { ShaderDataType::Float3, "Position" },
+                { ShaderDataType::Float2, "TexCoord" },
+                { ShaderDataType::Float3, "Normal" }
+            };
+            auto vb = VertexBuffer::Create((float*)mVertices.data(), mVertices.size() * sizeof(Vertex));
+            vb->SetLayout(layout);
 
-        BufferLayout layout{
-            { ShaderDataType::Float3, "Position" },
-            { ShaderDataType::Float2, "TexCoord" },
-            { ShaderDataType::Float3, "Normal" }
-        };
-        auto vb = VertexBuffer::Create((float*)mVertices.data(), mVertices.size() * sizeof(Vertex));
-        vb->SetLayout(layout);
+            auto ib = IndexBuffer::Create(mIndices.data(), mIndices.size());
 
-        auto ib = IndexBuffer::Create(mIndices.data(), mIndices.size());
+            mVertexArray = VertexArray::Create();
+            mVertexArray->AddVertexBuffer(vb);
+            mVertexArray->SetIndexBuffer(ib);
+            mTainted = false;
+        }
 
-        mVertexArray = VertexArray::Create();
-        mVertexArray->AddVertexBuffer(vb);
-        mVertexArray->SetIndexBuffer(ib);
         return mVertexArray;
     }
 
-    std::vector<std::shared_ptr<AssetType>> OBJImporter::Import(const std::filesystem::path &inFilepath)
+    std::vector<std::shared_ptr<AssetInstance>> OBJImporter::Import(const std::filesystem::path &inFilepath)
     {
-        objl::Loader Loader;
-        bool loadout = Loader.LoadFile(inFilepath.string());
-        std::vector<std::shared_ptr<AssetType>> meshes;
+        objl::Loader loader;
+        bool loadout = loader.LoadFile(inFilepath.string());
+        std::vector<std::shared_ptr<AssetInstance>> meshes;
         if (!loadout)
         {
             ZE_CORE_ERROR("Could not open {} as OBJ file", inFilepath);
             return meshes;
         }
         
-        for (int i = 0; i < Loader.LoadedMeshes.size(); ++i)
+        for (int i = 0; i < loader.LoadedMeshes.size(); ++i)
         {
-            objl::Mesh curMesh = Loader.LoadedMeshes[i];
+            objl::Mesh curMesh = loader.LoadedMeshes[i];
             std::shared_ptr<StaticMesh> mesh = std::make_unique<StaticMesh>();
 
             for (auto &vertex : curMesh.Vertices)
             {
-                mesh->GetVertices().push_back({
+                mesh->PushVertex({
                     { vertex.Position.X, vertex.Position.Y, vertex.Position.Z },
                     { vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y },
                     { vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z }
                 });
             }
 
-            mesh->GetIndices() = curMesh.Indices;
+            mesh->SetIndices(curMesh.Indices);
             meshes.push_back(mesh);
             /*file << "Material: " << curMesh.MeshMaterial.name << "\n";
             file << "Ambient Color: " << curMesh.MeshMaterial.Ka.X << ", " << curMesh.MeshMaterial.Ka.Y << ", " << curMesh.MeshMaterial.Ka.Z << "\n";

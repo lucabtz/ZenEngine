@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <fstream>
 
-#include "AssetType.h"
+#include "AssetInstance.h"
 #include "UUID.h"
 
 #include "Serialization.h"
@@ -14,11 +14,11 @@
 
 namespace ZenEngine
 {
-
     struct AssetClass
     {
         std::string Name;
 
+        class AssetSerializer *Serializer;
     private:
         template <typename Archive>
         void Serialize(Archive &inArchive)
@@ -33,26 +33,53 @@ namespace ZenEngine
     {
         UUID Id;
         std::filesystem::path Filepath;
-        AssetClass Class;
+        const AssetClass *Class;
     };
 
     class AssetImporter
     {
     public:
-        virtual const AssetClass &ProvidesAsset() const = 0;
+        virtual const AssetClass *ProvidesAsset() const = 0;
         virtual const char *GetName() const { return "AssetImporter"; }
 
         virtual std::vector<std::string> ProvidesForExtensions() const = 0;
-        virtual std::vector<std::shared_ptr<AssetType>> Import(const std::filesystem::path &inFilepath) = 0;
+        virtual std::vector<std::shared_ptr<AssetInstance>> Import(const std::filesystem::path &inFilepath) = 0;
     };
 
     template <typename T>
     class AssetImporterFor : public AssetImporter
     {
     public:
-        AssetClass const &ProvidesAsset() const override { return T::GetStaticAssetClass(); }
+        const AssetClass *ProvidesAsset() const override { return T::GetStaticAssetClass(); }
     };
     
+
+    class AssetSerializer
+    {
+    public:
+        virtual const char *GetName() const = 0;
+        virtual bool Save(const std::shared_ptr<AssetInstance> &inAssetInstance, const Asset &inAsset) const  = 0;
+        virtual std::shared_ptr<AssetInstance> Load(const Asset &inAsset) const = 0;
+        virtual bool CanSerialize(const std::filesystem::path &inFilepath) const = 0;
+        virtual std::pair<UUID, const AssetClass*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const = 0;
+    protected:
+        void SetId(std::shared_ptr<AssetInstance> &inAssetInstance, UUID inUUID) const { inAssetInstance->mId = inUUID; }
+    };
+
+#define IMPLEMENT_SERIALIZER_CLASS(fqname) virtual const char *GetName() const { return #fqname; }
+
+    class BinarySerializer : public AssetSerializer
+    {
+    public:
+        IMPLEMENT_SERIALIZER_CLASS(ZenEngine::BinarySerializer)
+
+        virtual bool Save(const std::shared_ptr<AssetInstance> &inAssetInstance, const Asset &inAsset) const override;
+        virtual std::shared_ptr<AssetInstance> Load(const Asset &inAsset) const override;
+        virtual bool CanSerialize(const std::filesystem::path &inFilepath) const override;
+        virtual std::pair<UUID, const AssetClass*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const override;
+    };
+
+
     class AssetManager
     {
     public:
@@ -63,85 +90,42 @@ namespace ZenEngine
         }
 
         void Init();
+
+        const AssetClass *GetAssetClassByName(const std::string &inName) const;
+        std::shared_ptr<AssetInstance> LoadAsset(UUID inUUID);
+        bool IsLoaded(UUID inAssetId);
         
         void RegisterAssetClass(const AssetClass &inAssetClass);
-
+        void RegisterAssetClass(const AssetClass &inAssetClass, const std::string &inSerializerName);
+        void RegisterSerializer(std::unique_ptr<AssetSerializer> inSerializer);
         void RegisterImporter(std::unique_ptr<AssetImporter> inImporter);
 
         void Import(const std::filesystem::path &inFilepath);
         void Import(const std::filesystem::path &inFilepath, const std::filesystem::path &inDestinationFolder);
 
-        const AssetClass &GetAssetClassByName(const std::string &inName) const;
-
-        bool IsLoaded(UUID inAssetId);
-
+        void BuildAssetDatabase();
         const std::unordered_map<UUID, Asset> &GetAssetDatabase() const;
 
         template <typename T>
-        std::shared_ptr<T> LoadAsset(UUID inUUID)
+        std::shared_ptr<T> LoadAssetAs(UUID inUUID)
         {
-            if (!mAssetDatabase.contains(inUUID))
-            {
-                ZE_CORE_WARN("Asset {} does not exist!", (size_t)inUUID);
-                return nullptr;
-            }
-            if (mAssetCache.contains(inUUID))
-            {
-                auto weakPtr = mAssetCache[inUUID];
-                auto asset = weakPtr.lock();
-                if (asset != nullptr)
-                {
-                    return std::static_pointer_cast<T>(asset);
-                }
-            }
-
-            auto &assetRes = mAssetDatabase[inUUID];
-
-            if (!std::filesystem::exists(assetRes.Filepath))
-            {
-                ZE_CORE_WARN("The asset {} does not exist anymore. Maybe it was moved. Rebuilding database", assetRes.Filepath.string());
-                BuildAssetDatabase();
-                assetRes = mAssetDatabase[inUUID];
-                if (!std::filesystem::exists(assetRes.Filepath))
-                {
-                    ZE_CORE_ERROR("Asset {} has been deleted. Removing it from database.", (uint64_t)inUUID);
-                    mAssetCache.erase(inUUID);
-                    return nullptr;
-                }
-            }
-            std::ifstream ifs(assetRes.Filepath, std::ios::binary);
-            cereal::BinaryInputArchive archive(ifs);
-            UUID id;
-            std::shared_ptr<AssetType> asset;
-            AssetClass clas;
-            try
-            {
-                archive(clas, id, asset);
-            }
-            catch (cereal::Exception e)
-            {
-                ZE_CORE_ERROR("{}", e.what());
-            }
-            mAssetCache[inUUID] = asset;
-
-            if (id != inUUID) ZE_CORE_ERROR("The asset loaded from {} appears to not match UUID. Has the file been tampered with?", assetRes.Filepath);
-            return std::static_pointer_cast<T>(asset);
+            return std::static_pointer_cast<T>(LoadAsset(inUUID));
         }
 
     private:
         std::unordered_map<std::string, AssetClass> mAssetClasses;
+        std::vector<std::unique_ptr<AssetSerializer>> mSerializers;
         std::vector<std::unique_ptr<AssetImporter>> mImporters;
 
         std::unordered_map<UUID, Asset> mAssetDatabase;
-        std::unordered_map<UUID, std::weak_ptr<AssetType>> mAssetCache;
+        std::unordered_map<UUID, std::weak_ptr<AssetInstance>> mAssetCache;
 
         static std::unique_ptr<AssetManager> sAssetManagerInstance;
     
         void RegisterCoreAssets();
 
-        bool SaveAsset(const std::shared_ptr<AssetType> &inAssetType, const Asset &inAsset);
+        bool SaveAsset(const std::shared_ptr<AssetInstance> &inAssetType, const Asset &inAsset);
         void BuildAssetDatabaseFrom(const std::filesystem::path &inImportFolder);
-        void BuildAssetDatabase();
     };
 
 
@@ -152,3 +136,8 @@ namespace ZenEngine
     AssetClass ac;\
     ac.Name = #name;\
     AssetManager::Get().RegisterAssetClass(ac);}
+
+#define REGISTER_NEW_ASSET_CLASS_SERIALIZER(name, serializer) {\
+    AssetClass ac;\
+    ac.Name = #name;\
+    AssetManager::Get().RegisterAssetClass(ac, #serializer);}

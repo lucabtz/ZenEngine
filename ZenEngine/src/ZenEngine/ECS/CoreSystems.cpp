@@ -13,7 +13,8 @@ namespace ZenEngine
         {
             auto &smc = view.get<StaticMeshComponent>(entity);
             auto &tc = view.get<TransformComponent>(entity);
-            Renderer::Get().Submit(smc.Mesh->CreateOrGetVertexArray(), tc.GetTransform(), smc.ShaderProgram);
+            if (smc.Mesh == nullptr || smc.Mat == nullptr) continue;
+            Renderer::Get().Submit(smc.Mesh->CreateOrGetVertexArray(), tc.GetTransform(), smc.Mat);
         }
     }
 }

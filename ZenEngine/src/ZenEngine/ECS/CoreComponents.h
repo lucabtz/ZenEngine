@@ -11,6 +11,8 @@
 #include "ZenEngine/Renderer/Shader.h"
 #include "Entity.h"
 #include "ZenEngine/Editor/PropertiesWindow.h"
+#include "ZenEngine/Asset/ShaderAsset.h"
+#include "ZenEngine/Renderer/Material.h"
 
 namespace ZenEngine
 {
@@ -78,12 +80,22 @@ namespace ZenEngine
     struct StaticMeshComponent
     {
         std::shared_ptr<StaticMesh> Mesh;
-        std::shared_ptr<Shader> ShaderProgram;
+        std::shared_ptr<Material> Mat;
+
+        // TODO add a ifdef WITH_EDITOR here this is not needed for runtime
+        std::shared_ptr<ShaderAsset> Shader;
 
         StaticMeshComponent() = default;
         StaticMeshComponent(const StaticMeshComponent&) = default;
-        StaticMeshComponent(const std::shared_ptr<StaticMesh> &inStaticMesh, const std::shared_ptr<Shader> &inShader) 
-            : Mesh(inStaticMesh), ShaderProgram(inShader) {}
+        StaticMeshComponent(const std::shared_ptr<StaticMesh> &inStaticMesh, const std::shared_ptr<Material> &inMaterial) 
+            : Mesh(inStaticMesh), Mat(inMaterial) {}
+    };
+
+    class StaticMeshComponentRenderer : public PropertyRendererFor<StaticMeshComponent>
+    {
+    public:
+        StaticMeshComponentRenderer() : PropertyRendererFor("Static Mesh Component") {}
+        virtual void RenderProperties(Entity inSelectedEntity, StaticMeshComponent &inStaticMeshComponent) override;
     };
 
 }

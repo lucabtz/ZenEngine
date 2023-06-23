@@ -9,6 +9,7 @@ namespace ZenEngine
     {
         RegisterPropertyRenderer(std::make_unique<NameComponentRenderer>());
         RegisterPropertyRenderer(std::make_unique<TransformComponentRenderer>());
+        RegisterPropertyRenderer(std::make_unique<StaticMeshComponentRenderer>());
     }
 
     void PropertiesWindow::OnRenderWindow()

@@ -20,7 +20,7 @@ float4 Color;
 Vertex2Pixel VSMain(VertexInfo input)
 {
     Vertex2Pixel output;
-    output.Position = mul(ZE_ModelMatrix, mul(ZE_ViewProjectionMatrix, float4(input.Position, 1.0f)));
+    output.Position = mul(ZE_ViewProjectionMatrix, mul(ZE_ModelMatrix, float4(input.Position, 1.0f)));
     return output;
 }
 

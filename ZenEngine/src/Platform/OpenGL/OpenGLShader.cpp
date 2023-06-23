@@ -3,31 +3,17 @@
 #include <shaderc/shaderc.hpp>
 #include <filesystem>
 #include <glad/glad.h>
-#include <glm/gtc/type_ptr.hpp>
 #include <spirv_cross/spirv_hlsl.hpp>
 
 #include "ZenEngine/Core/Filesystem.h"
 #include "ZenEngine/Core/Log.h"
 #include "ZenEngine/Core/Macros.h"
+#include "ZenEngine/ShaderCompiler/ShaderCompiler.h"
 #include "ZenEngine/ShaderCompiler/ShaderIncluder.h"
 #include "ZenEngine/ShaderCompiler/ShaderReflector.h"
 
 namespace ZenEngine
 {
-
-    static const char *GetCacheDirectory()
-    {
-        return "Cache/Shaders/OpenGL";
-    }
-
-    static void CreateCacheDirectory()
-    {
-        auto dir = GetCacheDirectory();
-        if (!std::filesystem::exists(dir))
-        {
-            std::filesystem::create_directories(dir);
-        }
-    }
 
     OpenGLShader::OpenGLShader(const std::string &inFilepath)
     {
@@ -42,6 +28,12 @@ namespace ZenEngine
         : mName(inName)
     {
         CreateShader(inSrc);
+    }
+
+    OpenGLShader::OpenGLShader(const std::string &inName, const std::vector<uint32_t> &inVtxSPIRV, const std::vector<uint32_t> &inPixSPIRV)
+        : mName(inName)
+    {
+        CreateShader(inVtxSPIRV, inPixSPIRV);
     }
 
     OpenGLShader::~OpenGLShader()
@@ -103,62 +95,30 @@ namespace ZenEngine
 
     void OpenGLShader::CreateShader(const std::string &inSrc)
     {
-        CreateCacheDirectory();
+        ShaderCompiler compiler(mName);
+        auto res = compiler.Compile(inSrc);
 
-        shaderc::Compiler compiler;
-        shaderc::CompileOptions options;
-        options.SetIncluder(std::make_unique<ShaderIncluder>());
-        options.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
-        options.SetSourceLanguage(shaderc_source_language_hlsl);
-        
-        // first we have to compile the vertex shader
-        auto preProcessedVertex = compiler.PreprocessGlsl(inSrc, shaderc_vertex_shader, mName.c_str(), options);
-        std::string preProcessedVtxSrc(preProcessedVertex.begin(), preProcessedVertex.end());
-        shaderc::SpvCompilationResult vertexRes = compiler.CompileGlslToSpv(preProcessedVtxSrc.c_str(), preProcessedVtxSrc.length(), shaderc_vertex_shader, mName.c_str(), "VSMain", options);
-        if (vertexRes.GetCompilationStatus() != shaderc_compilation_status_success)
-        {
-            ZE_CORE_ERROR("Failed compiling {} shader vertex: {}", mName, vertexRes.GetErrorMessage());
-            ZE_ASSERT(false);
-        }
-        
-        // then we compile the pixel shader
-        auto preProcessedPixel = compiler.PreprocessGlsl(inSrc, shaderc_fragment_shader, mName.c_str(), options);
-        std::string preProcessedPixSrc(preProcessedPixel.begin(), preProcessedPixel.end());
-        shaderc::SpvCompilationResult pixelRes = compiler.CompileGlslToSpv(preProcessedPixSrc.c_str(), preProcessedPixSrc.length(), shaderc_fragment_shader, mName.c_str(), "PSMain", options);
-        if (pixelRes.GetCompilationStatus() != shaderc_compilation_status_success)
-        {
-            ZE_CORE_ERROR("Failed compiling {} shader pixel: {}", mName, pixelRes.GetErrorMessage());
-            ZE_ASSERT(false);
-        }
+        CreateShader(res.VertexSPIRV, res.PixelSPIRV); 
+    }
 
-        std::vector<uint32_t> vertexShaderSPIRV(vertexRes.cbegin(), vertexRes.cend());
-        std::vector<uint32_t> pixelShaderSPIRV(pixelRes.cbegin(), pixelRes.cend());
-        
-        PrintReflectInfo(vertexShaderSPIRV, "Vertex");
-        PrintReflectInfo(pixelShaderSPIRV, "Pixel");
+    void OpenGLShader::CreateShader(const std::vector<uint32_t> &inVtxSPIRV, const std::vector<uint32_t> &inPixSPIRV)
+    {
+        PrintReflectInfo(inVtxSPIRV, "Vertex");
+        PrintReflectInfo(inPixSPIRV, "Pixel");
 
-        Reflect(vertexShaderSPIRV);
-        Reflect(pixelShaderSPIRV);
-
-        // TODO: at the moment we just write files to the cache but the cache is not really used
-        // this is useful for SPIR-V visualization and debug but in the future of course the cache should be used
-        std::filesystem::path cacheDir = GetCacheDirectory();
-        std::filesystem::path vsCacheFile = cacheDir / (mName + "Vertex.spirv");
-        std::filesystem::path psCacheFile = cacheDir / (mName + "Pixel.spirv");
-
-        Filesystem::WriteBytes(vsCacheFile.string(), (const uint8_t *)vertexShaderSPIRV.data(), vertexShaderSPIRV.size() * sizeof(uint32_t));
-        Filesystem::WriteBytes(psCacheFile.string(), (const uint8_t *)pixelShaderSPIRV.data(), pixelShaderSPIRV.size() * sizeof(uint32_t));
+        Reflect(inVtxSPIRV);
+        Reflect(inPixSPIRV);
 
         GLuint program = glCreateProgram();
 
         GLuint ids[2];
         ids[0] = glCreateShader(GL_VERTEX_SHADER);
-        glShaderBinary(1, &ids[0], GL_SHADER_BINARY_FORMAT_SPIR_V, vertexShaderSPIRV.data(), vertexShaderSPIRV.size() * sizeof(uint32_t));
+        glShaderBinary(1, &ids[0], GL_SHADER_BINARY_FORMAT_SPIR_V, inVtxSPIRV.data(), inVtxSPIRV.size() * sizeof(uint32_t));
         glSpecializeShader(ids[0], "VSMain", 0, nullptr, nullptr);
         glAttachShader(program, ids[0]);
 
         ids[1] = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderBinary(1, &ids[1], GL_SHADER_BINARY_FORMAT_SPIR_V, pixelShaderSPIRV.data(), pixelShaderSPIRV.size() * sizeof(uint32_t));
+        glShaderBinary(1, &ids[1], GL_SHADER_BINARY_FORMAT_SPIR_V, inPixSPIRV.data(), inPixSPIRV.size() * sizeof(uint32_t));
         glSpecializeShader(ids[1], "PSMain", 0, nullptr, nullptr);
         glAttachShader(program, ids[1]);
 

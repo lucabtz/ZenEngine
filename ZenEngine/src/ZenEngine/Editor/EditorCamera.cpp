@@ -6,6 +6,8 @@
 #include "ZenEngine/Core/Input.h"
 
 #include "ZenEngine/Core/Log.h"
+#include "ZenEngine/ECS/CoreComponents.h"
+#include "Editor.h"
 
 namespace ZenEngine
 {
@@ -37,7 +39,11 @@ namespace ZenEngine
 
         if (Input::IsKeyPressed(Key::F))
         {
-            SetFocusPointAndDistance({ 0.0f, 0.0f, 0.0f }, 10.0f);
+            auto selected = Editor::Get().CurrentlySelectedEntity;
+            if (selected != Entity::Null && selected.HasComponent<TransformComponent>())
+                SetFocusPointAndDistance(selected.GetComponent<TransformComponent>().Translation, 10.0f);
+            else
+                SetFocusPointAndDistance({ 0.0f, 0.0f, 0.0f }, 10.0f);
         }
     }
 

@@ -22,6 +22,7 @@
 #include <cereal/types/polymorphic.hpp>
 
 #include <glm/glm.hpp>
+#include <filesystem>
 
 namespace cereal
 {

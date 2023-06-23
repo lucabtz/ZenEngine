@@ -45,7 +45,9 @@ namespace ZenEngine
 
         void BeginScene(const CameraView &inCameraView);
         void Flush();
-        void Submit(const std::shared_ptr<class VertexArray> &inVertexArray, const glm::mat4 &inTransform,  const std::shared_ptr<class Shader> &inShader);
+        void SubmitWithShader(const std::shared_ptr<class VertexArray> &inVertexArray, const glm::mat4 &inTransform,  const std::shared_ptr<class Shader> &inShader);
+        void Submit(const std::shared_ptr<class VertexArray> &inVertexArray, const glm::mat4 &inTransform,  const std::shared_ptr<class Material> &inMaterial);
+
 
         void SwapBuffers() { Get().mRenderContext->SwapBuffers(); }
 

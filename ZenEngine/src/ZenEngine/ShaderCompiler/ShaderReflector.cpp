@@ -119,5 +119,4 @@ namespace ZenEngine
         ZE_ASSERT_CORE_MSG(inInfo.Type == ShaderType::Struct, "The given variable is not a struct!");
         return ReflectStruct_Internal(inInfo.Type_Internal, inInfo.TypeId_Internal);
     }
-
 }

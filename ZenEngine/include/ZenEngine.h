@@ -27,7 +27,7 @@
 
 #include "ZenEngine/Editor/Editor.h"
 
-#include "ZenEngine/Asset/AssetType.h"
+#include "ZenEngine/Asset/AssetInstance.h"
 #include "ZenEngine/Asset/AssetManager.h"
 #include "ZenEngine/Asset/StaticMesh.h"
 #include "ZenEngine/Asset/UUID.h"
