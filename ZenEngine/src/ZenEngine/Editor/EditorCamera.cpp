@@ -20,24 +20,24 @@ namespace ZenEngine
 
     void EditorCamera::OnUpdate(float inDeltaTime)
     {
-        if (mShouldMove)
+        if (ImGui::IsKeyDown(ImGuiKey_LeftShift))
         {
             const glm::vec2& mouse{ Input::GetMouseX(), Input::GetMouseY() };
             glm::vec2 delta = (mouse - mInitialMousePosition) * 0.003f;
             mInitialMousePosition = mouse;
 
-            if (Input::IsMouseButtonPressed(Mouse::ButtonMiddle))
+            if (ImGui::IsMouseDown(ImGuiMouseButton_Middle))
                 MousePan(delta);
-            else if (Input::IsMouseButtonPressed(Mouse::ButtonLeft))
+            else if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
                 MouseRotate(delta);
-            else if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
+            else if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
                 MouseZoom(delta.y);
             
             
             UpdateView();
         }
 
-        if (Input::IsKeyPressed(Key::F))
+        if (ImGui::IsKeyDown(ImGuiKey_F))
         {
             auto selected = Editor::Get().CurrentlySelectedEntity;
             if (selected != Entity::Null && selected.HasComponent<TransformComponent>())
@@ -49,7 +49,7 @@ namespace ZenEngine
 
     void EditorCamera::MouseScrolled(float inDelta)
     {
-        if (!mShouldMove) return;
+        if (!mShouldZoom) return;
         float delta = inDelta * 0.1f;
         MouseZoom(delta);
         UpdateView();
@@ -159,7 +159,7 @@ namespace ZenEngine
     {
         float yawSign = GetUpDirection().z < 0 ? -1.0f : 1.0f;
         mYaw += yawSign * inDelta.x * RotationSpeed();
-        mPitch += inDelta.y * RotationSpeed();
+        mPitch -= inDelta.y * RotationSpeed();
     }
 
     void EditorCamera::MouseZoom(float inDelta)

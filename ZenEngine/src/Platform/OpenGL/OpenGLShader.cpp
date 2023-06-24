@@ -58,7 +58,6 @@ namespace ZenEngine
         {
             auto &uniformData = mUniforms[inName];
             ZE_ASSERT_CORE_MSG(uniformData.Type == inShaderType, "{} is not at int", inName);
-            ZE_CORE_TRACE("Setting {} {} (size: {}, offset: {})", ShaderReflector::ShaderTypeToString(inShaderType), inName, uniformData.Size, uniformData.Offset);
             mUniformBuffer->SetData(inData, uniformData.Size, uniformData.Offset);
         }
     }

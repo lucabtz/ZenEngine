@@ -17,6 +17,7 @@ include_directories(ZenEngine/src
     SYSTEM ZenEngine/vendor/entt/src
     SYSTEM ZenEngine/vendor/objloader
     SYSTEM ZenEngine/vendor/cereal/include
+    SYSTEM ZenEngine/vendor/stb
 )
 
 set(CMAKE_CXX_FLAGS_DEBUGEDITOR "${CMAKE_CXX_FLAGS_DEBUG}")

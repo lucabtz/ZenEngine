@@ -4,40 +4,11 @@
 #include "ZenEngine/ECS/Scene.h"
 #include "ZenEngine/ECS/Entity.h"
 
+#include "EditorWindow.h"
+#include "AssetEditor.h"
+
 namespace ZenEngine
 {
-    class EditorWindow
-    {
-    public:
-        EditorWindow(const std::string inName, bool inIsDefaulOpen = false, bool inCanBeClosed = true) : mName(inName), mIsOpen(inIsDefaulOpen), mCanBeClosed(inCanBeClosed) {}
-
-        virtual void OnRegister() {}
-        virtual void OnRenderWindow() {}
-        virtual void OnInitializeStyle() {}
-        virtual void OnClearStyle() {}
-
-        virtual void OnUpdate(float inDeltaTime) {}
-        virtual void OnEvent(const std::unique_ptr<Event> &inEvent) {}
-
-        virtual void OnBeginRenderGame() {}
-        virtual void OnEndRenderGame() {}
-
-        void Open();
-
-        bool IsOpen() { return mIsOpen; }
-        bool CanBeClosed() { return mCanBeClosed; }
-
-        bool *GetOpenHandle() { return &mIsOpen; }
-
-        const std::string &GetName() { return mName; }
-
-    private:
-        std::string mName;
-        bool mCanBeClosed;
-
-        bool mIsOpen;
-    };
-
     class Editor : public Layer
     {
     public:
@@ -58,9 +29,16 @@ namespace ZenEngine
         Entity CurrentlySelectedEntity = Entity::Null;
         std::shared_ptr<Scene> &GetActiveScene() { return mActiveScene; }
 
+        template <typename T>
+        void OpenAsset(UUID inUUID)
+        {
+            mAssetEditors.push_back(std::make_unique<typename AssetEditorAssociation<T>::EditorType>(inUUID));
+        }
+
         static Editor &Get() { ZE_ASSERT_CORE_MSG(sEditorInstance != nullptr, "Editor does not exist!"); return *sEditorInstance; }
     private:
         std::vector<std::unique_ptr<EditorWindow>> mEditorWindows;
+        std::vector<std::unique_ptr<AssetEditor>> mAssetEditors;
         
         std::shared_ptr<Scene> mActiveScene;
 

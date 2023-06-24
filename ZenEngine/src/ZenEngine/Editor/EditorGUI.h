@@ -59,6 +59,18 @@ namespace ZenEngine
             ImGui::PopID();
         }
 
+        template <size_t BufferSize = 256>
+        static void InputTextNoLayout(const std::string &inLabel, std::string &outText)
+        {
+            char buffer[BufferSize];
+            memset(buffer, 0, sizeof(buffer));
+            outText.copy(buffer, sizeof(buffer) - 1);
+            ImGui::PushID(inLabel.c_str());
+            ImGui::InputText("##text", buffer, sizeof(buffer) - 1);
+            outText = buffer;
+            ImGui::PopID();
+        }
+
         static void SelectableText(const std::string &inLabel, const std::string &inText, float inColumnWidth = 100.0f);
 
     private:

@@ -10,6 +10,7 @@
 #include "AssetManagerDatabase.h"
 #include "SceneHierarchy.h"
 #include "PropertiesWindow.h"
+#include "AssetBrowser.h"
 
 namespace ZenEngine
 {
@@ -28,6 +29,7 @@ namespace ZenEngine
         RegisterEditorWindow(std::make_unique<AssetManagerDatabase>());
         RegisterEditorWindow(std::make_unique<SceneHierarchy>());
         RegisterEditorWindow(std::make_unique<PropertiesWindow>());
+        RegisterEditorWindow(std::make_unique<AssetBrowser>());
     }
 
     void Editor::OnRenderEditorGUI()
@@ -85,10 +87,6 @@ namespace ZenEngine
         {
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("Open Project...")) ZE_CORE_WARN("TODO: OpenProject");
-
-                ImGui::Separator();
-
                 if (ImGui::MenuItem("New Scene")) NewScene();
 
                 if (ImGui::MenuItem("Save Scene")) ZE_CORE_WARN("TODO: SaveLevel");
@@ -111,7 +109,7 @@ namespace ZenEngine
             {
                 for (const auto &window : mEditorWindows)
                 {
-                    if (window->CanBeClosed())
+                    if (window->HasViewMenuItem() && window->CanBeClosed())
                     {
                         if (ImGui::MenuItem(window->GetName().c_str())) window->Open();
                     }
@@ -193,14 +191,6 @@ namespace ZenEngine
     void Editor::NewScene()
     {
         mActiveScene = std::make_shared<Scene>();
-    }
-
-    void EditorWindow::Open()
-    {
-        if (!mIsOpen)
-        {
-            mIsOpen = true;
-        }
     }
 
 }

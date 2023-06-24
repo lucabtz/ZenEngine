@@ -38,6 +38,9 @@ namespace ZenEngine
         virtual std::shared_ptr<AssetInstance> Load(const Asset &inAsset) const override;
         virtual bool CanSerialize(const std::filesystem::path &inFilepath) const override;
         virtual std::pair<UUID, const AssetClass*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const override;
+
+    private:
+        UUID GetAssetId(const std::filesystem::path &inFilepath) const;
     };
 }
 

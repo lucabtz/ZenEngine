@@ -23,7 +23,8 @@
 #include "ZenEngine/Renderer/RendererAPI.h"
 #include "ZenEngine/Renderer/Shader.h"
 #include "ZenEngine/Renderer/VertexArray.h"
-#include "ZenEngine/Renderer/VertexBuffer.h"
+#include "ZenEngine/Renderer/Texture2D.h"
+#include "ZenEngine/Renderer/Framebuffer.h"
 
 #include "ZenEngine/Editor/Editor.h"
 

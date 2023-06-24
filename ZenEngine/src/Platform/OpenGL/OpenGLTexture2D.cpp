@@ -4,7 +4,7 @@
 
 namespace ZenEngine
 {
-    GLenum Texture2DFormatToGLFormat(Texture2D::Format inFormat)
+    static GLenum Texture2DFormatToGLInternalFormat(Texture2D::Format inFormat)
     {
         switch (inFormat)
         {
@@ -16,7 +16,19 @@ namespace ZenEngine
         }
     }
 
-    uint32_t Texture2DFormatBytes(Texture2D::Format inFormat)
+    static GLenum Texture2DFormatToGLFormat(Texture2D::Format inFormat)
+    {
+        switch (inFormat)
+        {
+        case Texture2D::Format::R8: return GL_RED;
+        case Texture2D::Format::RGB8: return GL_RGB;
+        case Texture2D::Format::RGBA32F: return GL_RGBA32F;
+        case Texture2D::Format::RGBA8: return GL_RGBA;
+        default: ZE_ASSERT_CORE_MSG(false, "Could not convert Texture2D::Format!"); return 0;
+        }
+    }
+
+    static uint32_t Texture2DFormatBytes(Texture2D::Format inFormat)
     {
         switch (inFormat)
         {
@@ -28,7 +40,7 @@ namespace ZenEngine
         }
     }
 
-    GLenum Texture2DFilterToGLFilter(Texture2D::Filter inFilter)
+    static GLenum Texture2DFilterToGLFilter(Texture2D::Filter inFilter)
     {
         switch (inFilter)
         {
@@ -42,7 +54,7 @@ namespace ZenEngine
         : mProperties(inProperties)
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &mRendererId);
-        glTextureStorage2D(mRendererId, 1, Texture2DFormatToGLFormat(mProperties.Format), mProperties.Width, mProperties.Height);
+        glTextureStorage2D(mRendererId, 1, Texture2DFormatToGLInternalFormat(mProperties.Format), mProperties.Width, mProperties.Height);
 
         glTextureParameteri(mRendererId, GL_TEXTURE_MIN_FILTER, Texture2DFilterToGLFilter(mProperties.MinFilter));
         glTextureParameteri(mRendererId, GL_TEXTURE_MAG_FILTER, Texture2DFilterToGLFilter(mProperties.MagFilter));

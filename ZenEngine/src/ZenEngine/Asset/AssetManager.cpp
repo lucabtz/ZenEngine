@@ -108,54 +108,78 @@ namespace ZenEngine
         return mAssetDatabase;
     }
 
+    const AssetClass *AssetManager::QueryFilepathAssetClass(const std::filesystem::path &inFilepath) const
+    {
+        for (auto &[uuid, asset] : mAssetDatabase)
+        {
+            if (asset.Filepath == inFilepath)
+            {
+                return asset.Class;
+            }
+        }
+        return nullptr;
+    }
+
+    std::optional<UUID> AssetManager::QueryFilepathAssetId(const std::filesystem::path &inFilepath) const
+    {
+        for (auto &[uuid, asset] : mAssetDatabase)
+        {
+            if (asset.Filepath == inFilepath)
+            {
+                return uuid;
+            }
+        }
+        return std::nullopt;
+    }
+
     std::shared_ptr<AssetInstance> AssetManager::LoadAsset(UUID inUUID)
     {
         if (!mAssetDatabase.contains(inUUID))
+        {
+            ZE_CORE_WARN("Asset {} does not exist!", (size_t)inUUID);
+            return nullptr;
+        }
+        if (mAssetCache.contains(inUUID))
+        {
+            auto weakPtr = mAssetCache[inUUID];
+            auto asset = weakPtr.lock();
+            if (asset != nullptr)
             {
-                ZE_CORE_WARN("Asset {} does not exist!", (size_t)inUUID);
-                return nullptr;
+                return asset;
             }
-            if (mAssetCache.contains(inUUID))
-            {
-                auto weakPtr = mAssetCache[inUUID];
-                auto asset = weakPtr.lock();
-                if (asset != nullptr)
-                {
-                    return asset;
-                }
-            }
+        }
 
-            auto &assetRes = mAssetDatabase[inUUID];
+        auto &assetRes = mAssetDatabase[inUUID];
 
-            // TODO maybe refactor this
+        // TODO maybe refactor this
+        if (!std::filesystem::exists(assetRes.Filepath))
+        {
+            ZE_CORE_WARN("The asset {} does not exist anymore. Maybe it was moved. Rebuilding database", assetRes.Filepath.string());
+            BuildAssetDatabase();
+            assetRes = mAssetDatabase[inUUID];
             if (!std::filesystem::exists(assetRes.Filepath))
             {
-                ZE_CORE_WARN("The asset {} does not exist anymore. Maybe it was moved. Rebuilding database", assetRes.Filepath.string());
-                BuildAssetDatabase();
-                assetRes = mAssetDatabase[inUUID];
-                if (!std::filesystem::exists(assetRes.Filepath))
-                {
-                    ZE_CORE_ERROR("Asset {} has been deleted. Removing it from database.", (uint64_t)inUUID);
-                    mAssetCache.erase(inUUID);
-                    return nullptr;
-                }
-            }
-
-            auto &serializer = assetRes.Class->Serializer;
-            std::shared_ptr<AssetInstance> asset = serializer->Load(assetRes);
-
-            if (asset == nullptr)
-            {
-                ZE_CORE_ERROR("Could not load asset {}", (uint64_t)inUUID);
+                ZE_CORE_ERROR("Asset {} has been deleted. Removing it from database.", (uint64_t)inUUID);
+                mAssetCache.erase(inUUID);
                 return nullptr;
             }
+        }
 
-            mAssetCache[inUUID] = asset;
+        auto &serializer = assetRes.Class->Serializer;
+        std::shared_ptr<AssetInstance> asset = serializer->Load(assetRes);
 
-            if (asset->GetAssetId() != inUUID) ZE_CORE_ERROR("The asset loaded from {} appears to not match UUID. Has the file been tampered with?", assetRes.Filepath);
-            // TODO: if for some reason the id has changed we should save the asset with the new id?
+        if (asset == nullptr)
+        {
+            ZE_CORE_ERROR("Could not load asset {}", (uint64_t)inUUID);
+            return nullptr;
+        }
 
-            return asset;
+        mAssetCache[inUUID] = asset;
+
+        if (asset->GetAssetId() != inUUID) ZE_CORE_ERROR("The asset loaded from {} appears to not match UUID. Has the file been tampered with?", assetRes.Filepath);
+        // TODO: if for some reason the id has changed we should save the asset with the new id?
+
+        return asset;
     }
 
     void AssetManager::RegisterCoreAssets()

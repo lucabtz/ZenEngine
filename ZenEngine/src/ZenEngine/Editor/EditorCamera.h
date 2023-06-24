@@ -19,7 +19,7 @@ namespace ZenEngine
         void SetDistance(float inDistance);
         void SetFocusPointAndDistance(const glm::vec3 &inFocusPoint, float inDistance);
 
-        void SetShouldMove(bool inShouldMove) { mShouldMove = inShouldMove; }
+        void SetShouldZoom(bool inShouldZoom) { mShouldZoom = inShouldZoom; }
 
         const glm::mat4 &GetProjection() { return mProjectionMatrix; }
         const glm::mat4 &GetView() { return mViewMatrix; }
@@ -44,7 +44,7 @@ namespace ZenEngine
         float mViewportWidth = 1280;
         float mViewportHeight = 720;
 
-        bool mShouldMove = false;
+        bool mShouldZoom = false;
 
         void UpdateView();
         void UpdateProjection();

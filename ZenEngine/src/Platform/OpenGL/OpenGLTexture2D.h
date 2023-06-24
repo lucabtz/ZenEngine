@@ -12,7 +12,7 @@ namespace ZenEngine
         OpenGLTexture2D(const Texture2D::Properties &inProperties);
         virtual ~OpenGLTexture2D();
 
-        virtual const Texture2D::Properties& GetProperties() const override;
+        virtual const Texture2D::Properties& GetProperties() const override { return mProperties; }
 
         virtual uint32_t GetWidth() const override { return mProperties.Width; }
         virtual uint32_t GetHeight() const override { return mProperties.Height; }

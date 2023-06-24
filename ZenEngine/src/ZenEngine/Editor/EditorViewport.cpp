@@ -37,13 +37,13 @@ namespace ZenEngine
 
         mViewportFocused = ImGui::IsWindowFocused();
         mViewportHovered = ImGui::IsWindowHovered();
-        mCamera.SetShouldMove(mViewportHovered && mViewportFocused);
+        mCamera.SetShouldZoom(mViewportHovered && mViewportFocused);
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
         mViewportDimensions = { viewportPanelSize.x, viewportPanelSize.y };
 
         uint64_t textureID = mViewportFramebuffer->GetColorAttachmentRendererId();
-        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ mViewportDimensions.x, mViewportDimensions.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ mViewportDimensions.x, mViewportDimensions.y });
     }
 
     void EditorViewport::OnUpdate(float inDeltaTime)

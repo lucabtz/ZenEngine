@@ -31,7 +31,9 @@ namespace ZenEngine
     {
         std::shared_ptr<ShaderAsset> shader = std::make_unique<ShaderAsset>();
         shader->SetSourceCode(Filesystem::ReadFileToString(inAsset.Filepath));
-        return shader;
+        auto asset = std::static_pointer_cast<AssetInstance>(shader);
+        SetId(asset, GetAssetId(inAsset.Filepath));
+        return asset;
     }
 
     bool ShaderSerializer::CanSerialize(const std::filesystem::path &inFilepath) const
@@ -40,6 +42,12 @@ namespace ZenEngine
     }
 
     std::pair<UUID, const AssetClass*> ShaderSerializer::GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const
+    {
+        auto id = GetAssetId(inFilepath);
+        return { id, ShaderAsset::GetStaticAssetClass() };
+    }
+
+    UUID ShaderSerializer::GetAssetId(const std::filesystem::path &inFilepath) const
     {
         auto metaFilepath = (inFilepath.parent_path())/inFilepath.filename().replace_extension(".zmeta");
         UUID id;
@@ -57,7 +65,7 @@ namespace ZenEngine
             archive(cereal::make_nvp("id", idInt));
             id = idInt;
         }
-        
-        return { id, ShaderAsset::GetStaticAssetClass() };
+
+        return id;
     }
 }

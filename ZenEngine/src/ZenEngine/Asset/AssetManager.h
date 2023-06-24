@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 #include <string>
 #include <memory>
@@ -105,6 +106,8 @@ namespace ZenEngine
 
         void BuildAssetDatabase();
         const std::unordered_map<UUID, Asset> &GetAssetDatabase() const;
+        const AssetClass *QueryFilepathAssetClass(const std::filesystem::path &inFilepath) const;
+        std::optional<UUID> QueryFilepathAssetId(const std::filesystem::path &inFilepath) const;
 
         template <typename T>
         std::shared_ptr<T> LoadAssetAs(UUID inUUID)
