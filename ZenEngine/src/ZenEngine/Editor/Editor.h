@@ -29,16 +29,24 @@ namespace ZenEngine
         Entity CurrentlySelectedEntity = Entity::Null;
         std::shared_ptr<Scene> &GetActiveScene() { return mActiveScene; }
 
-        template <typename T>
-        void OpenAsset(UUID inUUID)
+        void OpenAsset(UUID inUUID);
+
+        template <IsAssetEditor T>
+        void RegisterAssetEditor()
         {
-            mAssetEditors.push_back(std::make_unique<typename AssetEditorAssociation<T>::EditorType>(inUUID));
+            mAssetEditorInstatiators[T::AssetInstanceType::GetStaticAssetClassName()] = [](UUID id)
+            {
+                return std::make_unique<T>(id);
+            };
         }
 
         static Editor &Get() { ZE_ASSERT_CORE_MSG(sEditorInstance != nullptr, "Editor does not exist!"); return *sEditorInstance; }
     private:
         std::vector<std::unique_ptr<EditorWindow>> mEditorWindows;
-        std::vector<std::unique_ptr<AssetEditor>> mAssetEditors;
+        std::unordered_map<UUID, std::unique_ptr<AssetEditor>> mAssetEditors;
+        
+        using AssetEditorInstantiator = std::function<std::unique_ptr<AssetEditor>(UUID)>;
+        std::unordered_map<const char*, AssetEditorInstantiator> mAssetEditorInstatiators;
         
         std::shared_ptr<Scene> mActiveScene;
 

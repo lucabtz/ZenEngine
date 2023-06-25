@@ -2,6 +2,8 @@
 
 #include <stb_image.h>
 #include "EditorGUI.h"
+#include "ZenEngine/Asset/ShaderAsset.h"
+#include "ZenEngine/Asset/StaticMesh.h"
 
 #define ICON_RESOLUTION 512
 
@@ -9,8 +11,8 @@ namespace ZenEngine
 {
     void AssetBrowser::OnRegister()
     {
-        SetAssetIcon("ZenEngine::ShaderAsset", "resources/Icons/ShaderIcon.png");
-        SetAssetIcon("ZenEngine::StaticMesh", "resources/Icons/MeshIcon.png");
+        SetAssetIcon(ZenEngine::ShaderAsset::GetStaticAssetClassName(), "resources/Icons/ShaderIcon.png");
+        SetAssetIcon(ZenEngine::StaticMesh::GetStaticAssetClassName(), "resources/Icons/MeshIcon.png");
 
         Texture2D::Properties props;
         props.Width = ICON_RESOLUTION;
@@ -99,7 +101,7 @@ namespace ZenEngine
 			std::shared_ptr<Texture2D> icon;
             bool isDirectory = std::filesystem::is_directory(path);
             bool isRenamingThisFile = mCurrentlyRenaming.has_value() && mCurrentlyRenaming == path;
-            const AssetClass *clas = nullptr;
+            const char *className = nullptr;
             std::optional<UUID> id = std::nullopt;
 
             if (isDirectory)
@@ -108,11 +110,11 @@ namespace ZenEngine
             }
             else
             {
-                clas = AssetManager::Get().QueryFilepathAssetClass(path);
+                className = AssetManager::Get().QueryFilepathAssetClassName(path);
                 id = AssetManager::Get().QueryFilepathAssetId(path);
-                if (clas != nullptr && mAssetIcons.contains(clas->Name) && mAssetIcons[clas->Name] != nullptr)
+                if (className != nullptr && mAssetIcons.contains(className) && mAssetIcons[className] != nullptr)
                 {
-                    icon = mAssetIcons[clas->Name];
+                    icon = mAssetIcons[className];
                 }
                 else
                 {
@@ -145,7 +147,7 @@ namespace ZenEngine
                     {
                         if (id.has_value())
                         { 
-                            ImGui::SetDragDropPayload(clas->Name.c_str(), (uint64_t*)&id, sizeof(uint64_t));
+                            ImGui::SetDragDropPayload(className, (uint64_t*)&id, sizeof(uint64_t));
                         }
                     }
                     else
@@ -178,7 +180,7 @@ namespace ZenEngine
 					mCurrentDirectory /= path.filename();
                 else if (id.has_value())
                 {
-                    //Editor::Get().OpenAsset();
+                    Editor::Get().OpenAsset(id.value());
                 }
 			}
             if (isRenamingThisFile)
@@ -208,7 +210,7 @@ namespace ZenEngine
 		ImGui::Columns(1);
     }
 
-    void AssetBrowser::SetAssetIcon(const std::string &inAssetClassName, const std::filesystem::path &inIconPath)
+    void AssetBrowser::SetAssetIcon(const char *inAssetClassName, const std::filesystem::path &inIconPath)
     {
         Texture2D::Properties props;
         props.Width = ICON_RESOLUTION;

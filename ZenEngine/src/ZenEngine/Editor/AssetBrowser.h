@@ -19,12 +19,12 @@ namespace ZenEngine
         virtual void OnRegister() override;
         virtual void OnRenderWindow() override;
 
-        void SetAssetIcon(const std::string &inAssetClassName, const std::filesystem::path &inIconPath);
+        void SetAssetIcon(const char *inAssetClassName, const std::filesystem::path &inIconPath);
     private:
         std::shared_ptr<Texture2D> mFolderIcon;
         std::shared_ptr<Texture2D> mDefaultFileIcon;
 
-        std::unordered_map<std::string, std::shared_ptr<Texture2D>> mAssetIcons;
+        std::unordered_map<const char *, std::shared_ptr<Texture2D>> mAssetIcons;
 
         // TODO change this
         std::filesystem::path mBaseDirectory = "Assets";

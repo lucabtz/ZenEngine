@@ -26,7 +26,6 @@ namespace ZenEngine
     public:
         IMPLEMENT_ASSET_CLASS(ZenEngine::StaticMesh)
 
-
         void SetVertices(const std::vector<Vertex> &inVertices) { mVertices = inVertices; mTainted = true; }
         void SetIndices(const std::vector<uint32_t> &inIndices) { mIndices = inIndices; mTainted = true; }
         const std::vector<Vertex> &GetVertices() { return mVertices; }
@@ -53,16 +52,16 @@ namespace ZenEngine
         friend class cereal::access;
     };
 
-    class OBJImporter : public AssetImporterFor<StaticMesh>
+    class OBJImporter : public AssetImporter
     {
     public:
         virtual const char *GetName() const { return "OBJImporter"; }
-        virtual std::vector<std::string> ProvidesForExtensions() const 
+        virtual std::unordered_set<std::string> GetImportableExtensions() const 
         {
             return { ".obj" };
         }
 
-        virtual std::vector<std::shared_ptr<AssetInstance>> Import(const std::filesystem::path &inFilepath) override;
+        virtual std::vector<ImportedAsset> Import(const std::filesystem::path &inFilepath) override;
     };
 }
 

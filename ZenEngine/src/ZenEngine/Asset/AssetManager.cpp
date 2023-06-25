@@ -19,30 +19,22 @@ namespace ZenEngine
         BuildAssetDatabase();
     }
 
-    void AssetManager::RegisterAssetClass(const AssetClass &inAssetClass)
+    void AssetManager::RegisterAssetClass(const char *inAssetClassName)
     {
-        RegisterAssetClass(inAssetClass, "ZenEngine::BinarySerializer");
+        RegisterAssetClass(inAssetClassName, BinarySerializer::GetStaticName());
     }
 
-    void AssetManager::RegisterAssetClass(const AssetClass &inAssetClass, const std::string &inSerializerName)
+    void AssetManager::RegisterAssetClass(const char *inAssetClassName, const char *inSerializerName)
     {
-        AssetClass ac = inAssetClass;
+        mAssetClasses[inAssetClassName] = inAssetClassName;
         bool found = false;
-        for (auto &serializer : mSerializers)
-        {
-            if (serializer->GetName() == inSerializerName)
-            {
-                ac.Serializer = serializer.get();
-                found = true;
-            }
-        }
+        mSerializerAssociations[inAssetClassName] = mSerializers[inSerializerName].get();
         if (!found) ZE_ASSERT_CORE_MSG("Serializer {} does not exist!", inSerializerName);
-        mAssetClasses[ac.Name] = ac;
     }
 
     void AssetManager::RegisterSerializer(std::unique_ptr<AssetSerializer> inSerializer)
     {
-        mSerializers.push_back(std::move(inSerializer));
+        mSerializers[inSerializer->GetName()] = std::move(inSerializer);
     }
 
     void AssetManager::RegisterImporter(std::unique_ptr<AssetImporter> inImporter)
@@ -69,32 +61,19 @@ namespace ZenEngine
         for (auto &importer : mImporters)
         {
             ZE_CORE_TRACE("Trying importer {}", importer->GetName());
-            auto provided = importer->ProvidesForExtensions();
-            if (std::find(provided.begin(), provided.end(), extension) != provided.end())
+            auto provided = importer->GetImportableExtensions();
+            if (provided.contains(extension))
             {
                 ZE_CORE_INFO("Found importer {}", importer->GetName());
                 uint32_t index = 0;
-                for (auto &assetType : importer->Import(inFilepath))
+                for (auto &importedAsset : importer->Import(inFilepath))
                 {
-                    Asset asset;
-                    asset.Filepath = (destination / (index == 0? filename + ".zasset" : fmt::format("{}_{}.zasset", filename, index)));
-                    asset.Class = assetType->GetAssetClass();
-                    if (SaveAsset(assetType, asset))
-                    {
-                        ZE_CORE_INFO("Imported {} to {} as {} with id {}", inFilepath.string(), asset.Filepath.string(), asset.Class->Name, asset.Id);
-                        mAssetDatabase[asset.Id] = asset;
-                        ++index;
-                    }
+                    mAssetDatabase[importedAsset.Id] = Asset(importedAsset, inDestinationFolder);
+                    SaveAsset(importedAsset.Instance, mAssetDatabase[importedAsset.Id]);
                 }
                 break;
             }
         }
-    }
-
-    const AssetClass *AssetManager::GetAssetClassByName(const std::string &inName) const
-    {
-        ZE_ASSERT_CORE_MSG(mAssetClasses.contains(inName), "Asset class {} does not exist!", inName);
-        return &mAssetClasses.at(inName);
     }
 
     bool AssetManager::IsLoaded(UUID inAssetId)
@@ -108,13 +87,13 @@ namespace ZenEngine
         return mAssetDatabase;
     }
 
-    const AssetClass *AssetManager::QueryFilepathAssetClass(const std::filesystem::path &inFilepath) const
+    const char *AssetManager::QueryFilepathAssetClassName(const std::filesystem::path &inFilepath) const
     {
         for (auto &[uuid, asset] : mAssetDatabase)
         {
             if (asset.Filepath == inFilepath)
             {
-                return asset.Class;
+                return asset.ClassName;
             }
         }
         return nullptr;
@@ -142,22 +121,22 @@ namespace ZenEngine
         if (mAssetCache.contains(inUUID))
         {
             auto weakPtr = mAssetCache[inUUID];
-            auto asset = weakPtr.lock();
-            if (asset != nullptr)
+            auto assetInstance = weakPtr.lock();
+            if (assetInstance != nullptr)
             {
-                return asset;
+                return assetInstance;
             }
         }
 
-        auto &assetRes = mAssetDatabase[inUUID];
+        auto &asset = mAssetDatabase[inUUID];
 
         // TODO maybe refactor this
-        if (!std::filesystem::exists(assetRes.Filepath))
+        if (!std::filesystem::exists(asset.Filepath))
         {
-            ZE_CORE_WARN("The asset {} does not exist anymore. Maybe it was moved. Rebuilding database", assetRes.Filepath.string());
+            ZE_CORE_WARN("The asset {} does not exist anymore. Maybe it was moved. Rebuilding database", asset.Filepath.string());
             BuildAssetDatabase();
-            assetRes = mAssetDatabase[inUUID];
-            if (!std::filesystem::exists(assetRes.Filepath))
+            asset = mAssetDatabase[inUUID];
+            if (!std::filesystem::exists(asset.Filepath))
             {
                 ZE_CORE_ERROR("Asset {} has been deleted. Removing it from database.", (uint64_t)inUUID);
                 mAssetCache.erase(inUUID);
@@ -165,21 +144,21 @@ namespace ZenEngine
             }
         }
 
-        auto &serializer = assetRes.Class->Serializer;
-        std::shared_ptr<AssetInstance> asset = serializer->Load(assetRes);
+        auto &serializer = mSerializerAssociations[asset.ClassName];
+        std::shared_ptr<AssetInstance> assetInstance = serializer->Load(asset);
 
-        if (asset == nullptr)
+        if (assetInstance == nullptr)
         {
             ZE_CORE_ERROR("Could not load asset {}", (uint64_t)inUUID);
             return nullptr;
         }
 
-        mAssetCache[inUUID] = asset;
+        mAssetCache[inUUID] = assetInstance;
 
-        if (asset->GetAssetId() != inUUID) ZE_CORE_ERROR("The asset loaded from {} appears to not match UUID. Has the file been tampered with?", assetRes.Filepath);
+        if (assetInstance->GetAssetId() != inUUID) ZE_CORE_ERROR("The asset loaded from {} appears to not match UUID. Has the file been tampered with?", asset.Filepath);
         // TODO: if for some reason the id has changed we should save the asset with the new id?
 
-        return asset;
+        return assetInstance;
     }
 
     void AssetManager::RegisterCoreAssets()
@@ -195,7 +174,7 @@ namespace ZenEngine
 
     bool AssetManager::SaveAsset(const std::shared_ptr<AssetInstance> &inAssetInstance, const Asset &inAsset)
     {
-        auto &serializer = inAsset.Class->Serializer;
+        auto &serializer = mSerializerAssociations[inAsset.ClassName];
         return serializer->Save(inAssetInstance, inAsset);
     }
 
@@ -214,13 +193,13 @@ namespace ZenEngine
                 BuildAssetDatabaseFrom(path);
                 continue;
             }
-            for (auto &serializer : mSerializers)
+            for (auto &[_, serializer] : mSerializers)
             {
                 if (serializer->CanSerialize(path))
                 {
-                    auto [id, clas] = serializer->GetAssetIdAssetClass(path);
+                    auto [id, className] = serializer->GetAssetIdAssetClass(path);
                     Asset asset;
-                    asset.Class = clas;
+                    asset.ClassName = className;
                     asset.Id = id;
                     asset.Filepath = path;
                     if (mAssetDatabase.contains(asset.Id))
@@ -228,7 +207,7 @@ namespace ZenEngine
                         ZE_CORE_WARN("An asset with the same id already exists. Is it being imported twice?");
                     }
                     mAssetDatabase[id] = asset;
-                    ZE_CORE_TRACE("Loaded {} asset {} into database", asset.Class->Name, (uint64_t)asset.Id);
+                    ZE_CORE_TRACE("Loaded {} asset {} into database", asset.ClassName, (uint64_t)asset.Id);
                 }
             }
         }
@@ -249,7 +228,8 @@ namespace ZenEngine
         }
         std::ofstream os(inAsset.Filepath, std::ios::binary);
         cereal::BinaryOutputArchive archive(os);
-        archive(inAssetInstance->GetAssetClass()->Name, inAsset.Id, inAssetInstance);
+        std::string className = inAssetInstance->GetAssetClassName();
+        archive(className, inAsset.Id, inAssetInstance);
         return true;
     }
 
@@ -279,7 +259,7 @@ namespace ZenEngine
         return (inFilepath.extension().string() == ".zasset");
     }
     
-    std::pair<UUID, const AssetClass*> BinarySerializer::GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const
+    std::pair<UUID, const char*> BinarySerializer::GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const
     {
         std::ifstream ifs(inFilepath, std::ios::binary);
         cereal::BinaryInputArchive archive(ifs);

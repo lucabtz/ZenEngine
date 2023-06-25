@@ -209,7 +209,7 @@ namespace ZenEngine
         ImGui::PopID();
     }
 
-    bool EditorGUI::InputAsset(const std::string &inLabel, const AssetClass *inAssetClass, std::shared_ptr<AssetInstance> &outAsset, float inColumnWidth)
+    bool EditorGUI::InputAsset(const std::string &inLabel, const char *inAssetClassName, std::shared_ptr<AssetInstance> &outAsset, float inColumnWidth)
     {
         bool ret = false;
 
@@ -223,7 +223,7 @@ namespace ZenEngine
         ImGui::Text("%s", (outAsset != nullptr)? fmt::format("{}", (uint64_t)outAsset->GetAssetId()).c_str() : "Drag an asset here");
         if (ImGui::BeginDragDropTarget())
         {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(inAssetClass->Name.c_str()))
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(inAssetClassName))
             {
                 UUID assetId = *reinterpret_cast<uint64_t*>(payload->Data);
                 outAsset = AssetManager::Get().LoadAsset(assetId);

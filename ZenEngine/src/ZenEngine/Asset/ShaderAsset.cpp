@@ -41,10 +41,10 @@ namespace ZenEngine
         return (inFilepath.extension().string() == ".zshader" || inFilepath.extension().string() == ".hlsl");
     }
 
-    std::pair<UUID, const AssetClass*> ShaderSerializer::GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const
+    std::pair<UUID, const char*> ShaderSerializer::GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const
     {
         auto id = GetAssetId(inFilepath);
-        return { id, ShaderAsset::GetStaticAssetClass() };
+        return { id, ShaderAsset::GetStaticAssetClassName() };
     }
 
     UUID ShaderSerializer::GetAssetId(const std::filesystem::path &inFilepath) const

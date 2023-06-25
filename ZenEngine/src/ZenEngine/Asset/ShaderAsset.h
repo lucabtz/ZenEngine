@@ -37,12 +37,9 @@ namespace ZenEngine
         virtual bool Save(const std::shared_ptr<AssetInstance> &inAssetInstance, const Asset &inAsset) const override;
         virtual std::shared_ptr<AssetInstance> Load(const Asset &inAsset) const override;
         virtual bool CanSerialize(const std::filesystem::path &inFilepath) const override;
-        virtual std::pair<UUID, const AssetClass*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const override;
+        virtual std::pair<UUID, const char*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const override;
 
     private:
         UUID GetAssetId(const std::filesystem::path &inFilepath) const;
     };
 }
-
-CEREAL_REGISTER_TYPE(ZenEngine::ShaderAsset);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(ZenEngine::AssetInstance, ZenEngine::ShaderAsset)

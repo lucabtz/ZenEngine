@@ -31,15 +31,15 @@ namespace ZenEngine
         return mVertexArray;
     }
 
-    std::vector<std::shared_ptr<AssetInstance>> OBJImporter::Import(const std::filesystem::path &inFilepath)
+    std::vector<ImportedAsset> OBJImporter::Import(const std::filesystem::path &inFilepath)
     {
         objl::Loader loader;
         bool loadout = loader.LoadFile(inFilepath.string());
-        std::vector<std::shared_ptr<AssetInstance>> meshes;
+        std::vector<ImportedAsset> assets;
         if (!loadout)
         {
             ZE_CORE_ERROR("Could not open {} as OBJ file", inFilepath);
-            return meshes;
+            return assets;
         }
         
         for (int i = 0; i < loader.LoadedMeshes.size(); ++i)
@@ -57,7 +57,13 @@ namespace ZenEngine
             }
 
             mesh->SetIndices(curMesh.Indices);
-            meshes.push_back(mesh);
+
+            auto importedFilename = inFilepath.filename().replace_extension(".zasset");
+            ImportedAsset importedAsset;
+            importedAsset.Filename = importedFilename;
+            importedAsset.ClassName = StaticMesh::GetStaticAssetClassName();
+            importedAsset.Instance = mesh;
+            assets.push_back(importedAsset);
             /*file << "Material: " << curMesh.MeshMaterial.name << "\n";
             file << "Ambient Color: " << curMesh.MeshMaterial.Ka.X << ", " << curMesh.MeshMaterial.Ka.Y << ", " << curMesh.MeshMaterial.Ka.Z << "\n";
             file << "Diffuse Color: " << curMesh.MeshMaterial.Kd.X << ", " << curMesh.MeshMaterial.Kd.Y << ", " << curMesh.MeshMaterial.Kd.Z << "\n";
@@ -72,7 +78,7 @@ namespace ZenEngine
             file << "Alpha Texture Map: " << curMesh.MeshMaterial.map_d << "\n";
             file << "Bump Map: " << curMesh.MeshMaterial.map_bump << "\n";*/
         }
-        return meshes;
+        return assets;
     }
 
 }

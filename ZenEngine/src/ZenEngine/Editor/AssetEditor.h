@@ -8,9 +8,9 @@ namespace ZenEngine
     class AssetEditor : public EditorWindow
     {
     public:
-        AssetEditor(UUID inAssetId) : EditorWindow(fmt::format("{} Editor", GetAssetClass()->Name)) {}
+        AssetEditor(const std::string &inName, UUID inAssetId) : EditorWindow(inName) {}
+        virtual const char *GetAssetClassName() const = 0;
         virtual bool HasViewMenuItem() const override { return false; }
-        virtual const AssetClass *GetAssetClass() const = 0;
 
         // for warning the user before closing
         bool IsSaved() const { return !mEdited; }
@@ -21,24 +21,20 @@ namespace ZenEngine
     };
 
     template <typename T>
+    concept IsAssetEditor = std::derived_from<T, AssetEditor> && !std::is_abstract_v<T>;
+
+    template <IsAssetInstance T>
     class AssetEditorFor : public AssetEditor
     {
     public:
-        AssetEditorFor(UUID inAssetId) : AssetEditor(inAssetId) { mAssetInstance = AssetManager::Get().LoadAssetAs<T>(inUUID); }
-        virtual const AssetClass *GetAssetClass() const override { return T::GetStaticAssetClass(); }
-
+        using AssetInstanceType = T;
+        AssetEditorFor(UUID inAssetId) : AssetEditor(fmt::format("{} Editor", T::GetStaticAssetClassName()), inAssetId) 
+        { mAssetInstance = AssetManager::Get().LoadAssetAs<T>(inAssetId); }
+        virtual const char *GetAssetClassName() const override { return T::GetStaticAssetClassName(); }
     protected:
         std::shared_ptr<T> mAssetInstance;
     };
 
-    template <typename AssetInstanceClass>
-    struct AssetEditorAssociation
-    {};
-}
-
-#define REGISTER_ASSET_EDITOR(assetinstanceclass, asseteditorclass) namespace ZenEngine {\
-    template <> struct AssetEditorAssociation<assetinstanceclass>\
-    {\
-        using EditorType = asseteditorclass;\
-    }\
+    template <typename T, typename AssetInstance>
+    concept IsAssetEditorFor = std::derived_from<T, AssetEditorFor<AssetInstance>>;
 }

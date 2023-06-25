@@ -11,6 +11,7 @@
 #include "SceneHierarchy.h"
 #include "PropertiesWindow.h"
 #include "AssetBrowser.h"
+#include "MeshEditor.h"
 
 namespace ZenEngine
 {
@@ -30,6 +31,7 @@ namespace ZenEngine
         RegisterEditorWindow(std::make_unique<SceneHierarchy>());
         RegisterEditorWindow(std::make_unique<PropertiesWindow>());
         RegisterEditorWindow(std::make_unique<AssetBrowser>());
+        RegisterAssetEditor<MeshEditor>();
     }
 
     void Editor::OnRenderEditorGUI()
@@ -133,6 +135,30 @@ namespace ZenEngine
             ImGui::End();
             window->OnClearStyle();
         }
+
+        std::vector<UUID> toBeRemoved;
+        for (const auto &[id, assetEditor] : mAssetEditors)
+        {
+            if (!assetEditor->IsOpen())
+            {
+                if (assetEditor->IsSaved())
+                {
+                    toBeRemoved.push_back(id);
+                    continue;
+                }
+                else
+                {
+                    // warn here that the asset is not saved
+                }
+            }
+            assetEditor->OnInitializeStyle();
+            ImGui::Begin(fmt::format("{} ## {}", assetEditor->GetName(), id).c_str() , assetEditor->GetOpenHandle());
+            assetEditor->OnRenderWindow();
+            ImGui::End();
+            assetEditor->OnClearStyle();
+        }
+        for (auto id : toBeRemoved)
+            mAssetEditors.erase(id);
         ImGui::End();
     }
 
@@ -179,6 +205,18 @@ namespace ZenEngine
         inWindow->OnRegister();
         ZE_CORE_INFO("Registered editor window {}", inWindow->GetName());
         mEditorWindows.push_back(std::move(inWindow));
+    }
+
+    void Editor::OpenAsset(UUID inUUID)
+    {
+        const char *className = AssetManager::Get().GetAssetClassName(inUUID);
+        if (!mAssetEditors.contains(inUUID)) 
+        {
+            mAssetEditors[inUUID] = mAssetEditorInstatiators[className](inUUID);
+            mAssetEditors[inUUID]->Open();
+        }
+
+        // maybe here focus window
     }
 
     void Editor::ImportClicked()
