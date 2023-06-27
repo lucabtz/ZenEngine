@@ -12,6 +12,7 @@
 #include "PropertiesWindow.h"
 #include "AssetBrowser.h"
 #include "MeshEditor.h"
+#include "Texture2DEditor.h"
 
 namespace ZenEngine
 {
@@ -32,6 +33,7 @@ namespace ZenEngine
         RegisterEditorWindow(std::make_unique<PropertiesWindow>());
         RegisterEditorWindow(std::make_unique<AssetBrowser>());
         RegisterAssetEditor<MeshEditor>();
+        RegisterAssetEditor<Texture2DEditor>();
     }
 
     void Editor::OnRenderEditorGUI()
@@ -216,6 +218,7 @@ namespace ZenEngine
     void Editor::OpenAsset(UUID inUUID)
     {
         const char *className = AssetManager::Get().GetAssetClassName(inUUID);
+        if (!mAssetEditorInstatiators.contains(className)) return;
         if (!mAssetEditors.contains(inUUID)) 
         {
             mAssetEditors[inUUID] = mAssetEditorInstatiators[className](inUUID);

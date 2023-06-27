@@ -3,6 +3,7 @@
 #include "ZenEngine/Core/Macros.h"
 #include "StaticMesh.h"
 #include "ShaderAsset.h"
+#include "Texture2DAsset.h"
 
 #include "Serialization.h"
 
@@ -170,6 +171,9 @@ namespace ZenEngine
         RegisterImporter(std::make_unique<OBJImporter>());
         
         REGISTER_NEW_ASSET_CLASS_SERIALIZER(ZenEngine::ShaderAsset, ZenEngine::ShaderSerializer);
+
+        REGISTER_NEW_ASSET_CLASS(ZenEngine::Texture2DAsset);
+        RegisterImporter(std::make_unique<PNGImporter>());
     }
 
     bool AssetManager::SaveAsset(const std::shared_ptr<AssetInstance> &inAssetInstance, const Asset &inAsset)

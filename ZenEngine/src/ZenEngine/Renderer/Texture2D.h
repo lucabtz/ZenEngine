@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string>
 #include <memory>
+#include "ZenEngine/Core/Macros.h"
 
 namespace ZenEngine
 {
@@ -19,6 +20,18 @@ namespace ZenEngine
             RGBA32F
         };
 
+        static uint32_t Texture2DFormatBytes(Texture2D::Format inFormat)
+        {
+            switch (inFormat)
+            {
+            case Texture2D::Format::R8: return 1;
+            case Texture2D::Format::RGB8: return 3;
+            case Texture2D::Format::RGBA32F: return 4;
+            case Texture2D::Format::RGBA8: return 4; 
+            default: ZE_ASSERT_CORE_MSG(false, "Texture2D::Format default case!"); return 0;
+            }
+        }
+        
         enum class Filter
         {
             None = 0,
@@ -36,6 +49,7 @@ namespace ZenEngine
             Texture2D::Filter MinFilter = Texture2D::Filter::Linear;
         };
 
+
         virtual ~Texture2D() = default;
 
         virtual const Texture2D::Properties& GetProperties() const = 0;
@@ -44,7 +58,13 @@ namespace ZenEngine
         virtual uint32_t GetHeight() const = 0;
         virtual uint32_t GetRendererID() const = 0;
 
-        virtual void SetData(void* inData, uint32_t inSize) = 0;
+        virtual void SetData(void *inData, uint32_t inSize) = 0;
+
+        void SetData(void *inData)
+        {
+            auto &props = GetProperties();
+            SetData(inData, props.Width * props.Height * Texture2DFormatBytes(props.Format));
+        }
 
         virtual void Bind(uint32_t inSlot = 0) const = 0;
 

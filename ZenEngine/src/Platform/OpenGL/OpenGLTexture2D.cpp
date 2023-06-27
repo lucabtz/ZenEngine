@@ -28,18 +28,6 @@ namespace ZenEngine
         }
     }
 
-    static uint32_t Texture2DFormatBytes(Texture2D::Format inFormat)
-    {
-        switch (inFormat)
-        {
-        case Texture2D::Format::R8: return 1;
-        case Texture2D::Format::RGB8: return 3;
-        case Texture2D::Format::RGBA32F: return 4;
-        case Texture2D::Format::RGBA8: return 4; 
-        default: ZE_ASSERT_CORE_MSG(false, "Texture2D::Format default case!"); return 0;
-        }
-    }
-
     static GLenum Texture2DFilterToGLFilter(Texture2D::Filter inFilter)
     {
         switch (inFilter)
