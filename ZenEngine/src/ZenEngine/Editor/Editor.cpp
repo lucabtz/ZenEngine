@@ -192,12 +192,18 @@ namespace ZenEngine
     {
         for (auto &window : mEditorWindows)
             window->OnBeginRenderGame();
+
+        for (auto &[_, assetEditor] : mAssetEditors)
+            assetEditor->OnBeginRenderGame();
     }
 
     void Editor::EndRenderGame()
     {
         for (auto &window : mEditorWindows)
             window->OnEndRenderGame();
+
+        for (auto &[_, assetEditor] : mAssetEditors)
+            assetEditor->OnEndRenderGame();
     }
 
     void Editor::RegisterEditorWindow(std::unique_ptr<EditorWindow> inWindow)

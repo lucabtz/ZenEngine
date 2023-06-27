@@ -66,7 +66,7 @@ namespace ZenEngine
 
             ImGui::EndPopup();
         }
-
+        
         if (opened)
         {
             if (entity.HasComponent<HierarchyComponent>())
@@ -81,9 +81,9 @@ namespace ZenEngine
 
         if (entityDeleted)
         {
-            entity.Destroy();
             if (selectedEntity == entity)
                 selectedEntity = Entity::Null;
+            entity.Destroy();
         }
     }
 }

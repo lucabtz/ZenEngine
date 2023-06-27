@@ -41,9 +41,9 @@ namespace ZenEngine
         {
             auto selected = Editor::Get().CurrentlySelectedEntity;
             if (selected != Entity::Null && selected.HasComponent<TransformComponent>())
-                SetFocusPointAndDistance(selected.GetComponent<TransformComponent>().Translation, 10.0f);
+                SetFocusPointAndDistance(selected.GetComponent<TransformComponent>().Position, mDistance);
             else
-                SetFocusPointAndDistance({ 0.0f, 0.0f, 0.0f }, 10.0f);
+                SetFocusPointAndDistance({ 0.0f, 0.0f, 0.0f }, mDistance);
         }
     }
 
@@ -118,7 +118,7 @@ namespace ZenEngine
 
     glm::quat EditorCamera::GetOrientation() const
     {
-        return glm::quat(glm::vec3(-mPitch, 0.0f, -mYaw));
+        return glm::quat(glm::vec3(-mPitch, -mYaw, 0.0f));
     }
 
 
@@ -157,9 +157,8 @@ namespace ZenEngine
 
     void EditorCamera::MouseRotate(const glm::vec2 &inDelta)
     {
-        float yawSign = GetUpDirection().z < 0 ? -1.0f : 1.0f;
-        mYaw += yawSign * inDelta.x * RotationSpeed();
-        mPitch -= inDelta.y * RotationSpeed();
+        mYaw += inDelta.x * RotationSpeed();
+        mPitch += inDelta.y * RotationSpeed();
     }
 
     void EditorCamera::MouseZoom(float inDelta)

@@ -36,7 +36,12 @@ namespace ZenEngine
         mWindow = Window::Create(windowInfo);
         
         Renderer::Get().Init(mWindow);
+
+    #ifdef WITH_EDITOR
+        RenderCommand::SetClearColor({  0.1f, 0.105f, 0.11f, 1.0f });
+    #else
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+    #endif
 
         AssetManager::Get().Init();
 

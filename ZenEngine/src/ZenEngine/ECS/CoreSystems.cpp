@@ -9,12 +9,13 @@ namespace ZenEngine
     void StaticMeshRendererSystem::OnRender(float inDeltaTime)
     {
         auto view = mScene->View<TransformComponent, StaticMeshComponent>();
-        for (auto entity : view)
+        for (auto entt : view)
         {
-            auto &smc = view.get<StaticMeshComponent>(entity);
-            auto &tc = view.get<TransformComponent>(entity);
-            if (smc.Mesh == nullptr || smc.Mat == nullptr) continue;
-            Renderer::Get().Submit(smc.Mesh->CreateOrGetVertexArray(), tc.GetTransform(), smc.Mat);
+            Entity entity(entt, mScene);
+            auto &smc = view.get<StaticMeshComponent>(entt);
+            auto &tc = view.get<TransformComponent>(entt);
+            if (smc.MeshVertexArray == nullptr || smc.Mat == nullptr) continue;
+            Renderer::Get().Submit(smc.MeshVertexArray, entity.GetWorldTransform(), smc.Mat);
         }
     }
 }

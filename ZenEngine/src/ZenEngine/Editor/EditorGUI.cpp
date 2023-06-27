@@ -16,6 +16,8 @@
     #error "Editor only supports OpenGL as renderer at the moment!"
 #endif
 
+#include <ImGuizmo.h>
+
 namespace ZenEngine
 {
     static void SetDarkThemeColors()
@@ -117,6 +119,7 @@ namespace ZenEngine
         #endif
     #endif
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
     }
 
     void EditorGUI::EndGUI()
@@ -220,7 +223,7 @@ namespace ZenEngine
         ImGui::Text(inLabel.c_str());
         ImGui::NextColumn();
 
-        ImGui::Text("%s", (outAsset != nullptr)? fmt::format("{}", (uint64_t)outAsset->GetAssetId()).c_str() : "Drag an asset here");
+        ImGui::Text("%s", (outAsset != nullptr)? fmt::format("{}", AssetManager::Get().GetAsset(outAsset->GetAssetId()).GetName()).c_str() : "Drag an asset here");
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(inAssetClassName))
@@ -238,6 +241,33 @@ namespace ZenEngine
         return ret;
     }
 
+    bool EditorGUI::InputAssetUUID(const std::string &inLabel, const char *inAssetClassName, UUID &outAssetId, float inColumnWidth)
+    {
+        bool ret = false;
+        ImGui::PushID(inLabel.c_str());
+
+        ImGui::Columns(2);
+        ImGui::SetColumnWidth(0, inColumnWidth);
+        ImGui::Text(inLabel.c_str());
+        ImGui::NextColumn();
+        bool display = (outAssetId != 0 && AssetManager::Get().Exists(outAssetId));
+        ImGui::Text("%s", display? fmt::format("{}", AssetManager::Get().GetAsset(outAssetId).GetName()).c_str() : "Drag an asset here");
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(inAssetClassName))
+            {
+                UUID assetId = *reinterpret_cast<uint64_t*>(payload->Data);
+                outAssetId = assetId;
+                ret = true;
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        ImGui::Columns(1);
+        
+        ImGui::PopID();
+        return ret;
+    }
 
     void EditorGUI::SelectableText(const std::string &inLabel, const std::string &inText, float inColumnWidth)
     {

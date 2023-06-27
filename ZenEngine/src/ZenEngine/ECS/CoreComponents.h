@@ -51,22 +51,27 @@ namespace ZenEngine
 
     struct TransformComponent
     {
-        glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
-        glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
-        glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
+        glm::vec3 Position;
+        glm::quat Rotation;
+        glm::vec3 Scale;
 
-        TransformComponent() = default;
+        TransformComponent() : Position(0.0f, 0.0f, 0.0f), Rotation(), Scale(1.0f, 1.0f, 1.0f) {}
         TransformComponent(const TransformComponent&) = default;
-        TransformComponent(const glm::vec3& translation)
-            : Translation(translation) {}
 
-        glm::mat4 GetTransform() const
+        glm::mat4 GetTransform()
         {
-            glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
+            glm::mat4 rotation = glm::toMat4(Rotation);
+            return glm::translate(glm::mat4(1.0f), Position) * rotation * glm::scale(glm::mat4(1.0f), Scale);
+        }
 
-            return glm::translate(glm::mat4(1.0f), Translation)
-                * rotation
-                * glm::scale(glm::mat4(1.0f), Scale);
+        void SetRotation(const glm::vec3 &inEulerAngles)
+        {
+            Rotation = glm::quat(glm::radians(inEulerAngles));
+        }
+
+        glm::vec3 GetEulerAngles()
+        {
+            return glm::degrees(glm::eulerAngles(Rotation));
         }
     };
 
@@ -79,16 +84,14 @@ namespace ZenEngine
 
     struct StaticMeshComponent
     {
-        std::shared_ptr<StaticMesh> Mesh;
+        UUID ShaderId = 0;
+        UUID MeshId = 0;
+    
+        std::shared_ptr<VertexArray> MeshVertexArray;
         std::shared_ptr<Material> Mat;
-
-        // TODO add a ifdef WITH_EDITOR here this is not needed for runtime
-        std::shared_ptr<ShaderAsset> Shader;
 
         StaticMeshComponent() = default;
         StaticMeshComponent(const StaticMeshComponent&) = default;
-        StaticMeshComponent(const std::shared_ptr<StaticMesh> &inStaticMesh, const std::shared_ptr<Material> &inMaterial) 
-            : Mesh(inStaticMesh), Mat(inMaterial) {}
     };
 
     class StaticMeshComponentRenderer : public PropertyRendererFor<StaticMeshComponent>
@@ -96,6 +99,8 @@ namespace ZenEngine
     public:
         StaticMeshComponentRenderer() : PropertyRendererFor("Static Mesh Component") {}
         virtual void RenderProperties(Entity inSelectedEntity, StaticMeshComponent &inStaticMeshComponent) override;
+
+        
     };
 
 }

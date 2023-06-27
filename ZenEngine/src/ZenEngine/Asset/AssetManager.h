@@ -34,6 +34,8 @@ namespace ZenEngine
         Asset(const ImportedAsset &inImportedAsset, const std::filesystem::path &inDestinationPath)
             : Id(inImportedAsset.Id), Filepath(inDestinationPath / inImportedAsset.Filename), ClassName(inImportedAsset.ClassName)
         {}
+
+        std::string GetName() const { return Filepath.stem().string(); }
     };
 
     class AssetImporter
@@ -96,7 +98,9 @@ namespace ZenEngine
 
         void BuildAssetDatabase();
         const std::unordered_map<UUID, Asset> &GetAssetDatabase() const;
+        const Asset &GetAsset(UUID inUUID) const { return mAssetDatabase.at(inUUID); }
         const char *GetAssetClassName(UUID inUUID) const { return mAssetDatabase.at(inUUID).ClassName; }
+        bool Exists(UUID inUUID) const { return mAssetDatabase.contains(inUUID); }
 
         const char *QueryFilepathAssetClassName(const std::filesystem::path &inFilepath) const;
         std::optional<UUID> QueryFilepathAssetId(const std::filesystem::path &inFilepath) const;
@@ -129,8 +133,5 @@ namespace ZenEngine
 
 }
 
-#define REGISTER_NEW_ASSET_CLASS(name) {\
-    AssetManager::Get().RegisterAssetClass(name::GetStaticAssetClassName());}
-
-#define REGISTER_NEW_ASSET_CLASS_SERIALIZER(name, serializer) {\
-    AssetManager::Get().RegisterAssetClass(name::GetStaticAssetClassName(), serializer::GetStaticName());}
+#define REGISTER_NEW_ASSET_CLASS(name) { AssetManager::Get().RegisterAssetClass(name::GetStaticAssetClassName()); }
+#define REGISTER_NEW_ASSET_CLASS_SERIALIZER(name, serializer) { AssetManager::Get().RegisterAssetClass(name::GetStaticAssetClassName(), serializer::GetStaticName()); }

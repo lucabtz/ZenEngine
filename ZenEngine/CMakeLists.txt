@@ -28,6 +28,11 @@ add_library(ImGUI
     vendor/imgui/imgui_demo.cpp
 )
 
+add_library(ImGuizmo
+  vendor/ImGuizmo/ImGuizmo.h
+  vendor/ImGuizmo/ImGuizmo.cpp
+)
+
 if(WIN32)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(Vulkan_LIB_DIR "$ENV{VULKAN_SDK}/Lib")
@@ -45,6 +50,7 @@ target_link_libraries(ZenEngine
     glfw 
     glad 
     ImGUI
+    ImGuizmo
 )
 target_link_libraries(ZenEngine debug "${Vulkan_LIB_DIR}/shaderc_combinedd.lib" optimized "${Vulkan_LIB_DIR}/shaderc_combined.lib")
 target_link_libraries(ZenEngine debug "${Vulkan_LIB_DIR}/spirv-cross-cppd.lib" optimized "${Vulkan_LIB_DIR}/spirv-cross-cpp.lib")

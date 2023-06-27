@@ -1,5 +1,6 @@
 #include "CoreComponents.h"
 
+#include "ZenEngine/Core/Math.h"
 #include "ZenEngine/Editor/EditorGUI.h"
 
 namespace ZenEngine
@@ -12,18 +13,26 @@ namespace ZenEngine
 
     void TransformComponentRenderer::RenderProperties(Entity inSelectedEntity, TransformComponent &inTransformComponent)
     {
-        EditorGUI::InputVec3("Translation", inTransformComponent.Translation);
-        glm::vec3 rotation = glm::degrees(inTransformComponent.Rotation);
+        EditorGUI::InputVec3("Position", inTransformComponent.Position);
+
+        glm::vec3 rotation = inTransformComponent.GetEulerAngles();
         EditorGUI::InputVec3("Rotation", rotation);
-        inTransformComponent.Rotation = glm::radians(rotation);
+        inTransformComponent.SetRotation(rotation);
+
         EditorGUI::InputVec3("Scale", inTransformComponent.Scale, 1.0f);
     }
 
     void StaticMeshComponentRenderer::RenderProperties(Entity inSelectedEntity, StaticMeshComponent &inStaticMeshComponent)
     {
-        EditorGUI::InputAsset<StaticMesh>("Mesh", inStaticMeshComponent.Mesh);   
-        if (EditorGUI::InputAsset<ShaderAsset>("Shader", inStaticMeshComponent.Shader) && inStaticMeshComponent.Shader != nullptr)
-            inStaticMeshComponent.Mat = Material::Create(inStaticMeshComponent.Shader->CreateOrGetShaderProgram());
+        if (EditorGUI::InputAssetUUID<StaticMesh>("Mesh", inStaticMeshComponent.MeshId))
+        {
+            inStaticMeshComponent.MeshVertexArray = AssetManager::Get().LoadAssetAs<StaticMesh>(inStaticMeshComponent.MeshId)->CreateOrGetVertexArray();
+        }
+        if (EditorGUI::InputAssetUUID<ShaderAsset>("Shader", inStaticMeshComponent.ShaderId))
+        {
+            auto shader = AssetManager::Get().LoadAssetAs<ShaderAsset>(inStaticMeshComponent.ShaderId);
+            inStaticMeshComponent.Mat = Material::Create(shader->CreateOrGetShaderProgram());
+        }
         if (inStaticMeshComponent.Mat != nullptr)
         {
             auto params = inStaticMeshComponent.Mat->GetParameters();

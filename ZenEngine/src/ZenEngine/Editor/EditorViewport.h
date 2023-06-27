@@ -29,5 +29,7 @@ namespace ZenEngine
         glm::vec2 mViewportDimensions;
         bool mViewportFocused;
         bool mViewportHovered;
+
+        ImGuizmo::OPERATION mGizmoOperation = ImGuizmo::TRANSLATE;
     };
 }

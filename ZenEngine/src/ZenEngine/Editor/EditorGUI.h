@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <glm/glm.hpp>
+#include <ImGuizmo.h>
 
 #include "ZenEngine/Core/Macros.h"
 #include "ZenEngine/Event/Event.h"
@@ -28,14 +29,21 @@ namespace ZenEngine
 
         static void InputVec3(const std::string &inLabel, glm::vec3 &outValues, float inResetValue = 0.0f, float inColumnWidth = 100.0f);
         static bool InputAsset(const std::string &inLabel, const char *inAssetClassName, std::shared_ptr<AssetInstance> &outAsset, float inColumnWidth = 100.0f);
+        static bool InputAssetUUID(const std::string &inLabel, const char *inAssetClassName, UUID &outAssetId, float inColumnWidth = 100.0f);
 
-        template <typename T>
+        template <IsAssetInstance T>
         static bool InputAsset(const std::string &inLabel, std::shared_ptr<T> &outAsset, float inColumnWidth = 100.0f)
         {
             std::shared_ptr<AssetInstance> asset = outAsset;
             bool ret = InputAsset(inLabel, T::GetStaticAssetClassName(), asset, inColumnWidth);
             outAsset = std::static_pointer_cast<T>(asset);
             return ret;
+        }
+
+        template <IsAssetInstance T>
+        static bool InputAssetUUID(const std::string &inLabel, UUID &outAssetId, float inColumnWidth = 100.0f)
+        {
+            return InputAssetUUID(inLabel, T::GetStaticAssetClassName(), outAssetId, inColumnWidth);
         }
 
         template <size_t BufferSize = 256>

@@ -1,7 +1,12 @@
 #include "EditorViewport.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
+#include "EditorGUI.h"
 #include "ZenEngine/Core/Log.h"
+#include "ZenEngine/Core/Math.h"
 #include "ZenEngine/Event/MouseEvents.h"
+#include "ZenEngine/ECS/CoreComponents.h"
 
 namespace ZenEngine
 {
@@ -43,12 +48,38 @@ namespace ZenEngine
         mViewportDimensions = { viewportPanelSize.x, viewportPanelSize.y };
 
         uint64_t textureID = mViewportFramebuffer->GetColorAttachmentRendererId();
-        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ mViewportDimensions.x, mViewportDimensions.y });
+        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ mViewportDimensions.x, mViewportDimensions.y }, { 0, 1 }, { 1, 0 });
+
+        auto selectedEntity = Editor::Get().CurrentlySelectedEntity;
+        if (selectedEntity != Entity::Null && selectedEntity.HasComponent<TransformComponent>())
+        {
+            ImGuizmo::SetOrthographic(false);
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+            
+            auto &tc = selectedEntity.GetComponent<TransformComponent>();
+            //glm::mat4 transform = selectedEntity.GetLocalTransform();
+            glm::mat4 worldTransform = selectedEntity.GetWorldTransform();
+            ImGuizmo::Manipulate(
+                glm::value_ptr(mCamera.GetView()), glm::value_ptr(mCamera.GetProjection()), 
+                mGizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(worldTransform)
+            );
+            Math::DecomposeMatrix(glm::inverse(selectedEntity.GetParentTransform()) * worldTransform, tc.Position, tc.Rotation, tc.Scale);
+        }
     }
 
     void EditorViewport::OnUpdate(float inDeltaTime)
     {
         mCamera.OnUpdate(inDeltaTime);
+
+        if (ImGui::IsKeyDown(ImGuiKey_R))
+            mGizmoOperation = ImGuizmo::ROTATE;
+        
+        if (ImGui::IsKeyDown(ImGuiKey_W))
+            mGizmoOperation = ImGuizmo::TRANSLATE;
+
+        if (ImGui::IsKeyDown(ImGuiKey_S))
+            mGizmoOperation = ImGuizmo::SCALE;
     }
 
     void EditorViewport::OnEvent(const std::unique_ptr<Event> &inEvent)

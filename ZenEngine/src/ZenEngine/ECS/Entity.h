@@ -1,6 +1,7 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include <glm/glm.hpp>
 
 #include "Scene.h"
 #include "ZenEngine/Core/Macros.h"
@@ -71,10 +72,14 @@ namespace ZenEngine
             ForEachAncestorInterruptable(wrapper);
         }
 
+        glm::mat4 GetLocalTransform();
+        glm::mat4 GetWorldTransform();
+        glm::mat4 GetParentTransform();
 
         void AddChild(Entity &inEntity);
         void RemoveChild(Entity &inEntity);
         bool IsAncestorOf(Entity &inEntity);
+        void Unparent();
 
         operator bool() const { return mHandle != entt::null && mScene != nullptr; }
         bool operator==(const Entity &inOther) { return mHandle == inOther.mHandle && mScene == inOther.mScene; }

@@ -19,6 +19,24 @@ namespace ZenEngine
     void Entity::Destroy()
     {
         ZE_ASSERT_CORE_MSG(mScene != nullptr, "Scene is null!");
+        if (HasComponent<HierarchyComponent>())
+        {
+            auto &hc = GetComponent<HierarchyComponent>();
+            if (hc.Parent != Entity::Null)
+                hc.Parent.RemoveChild(*this);
+            ForEachChild([&hc](Entity child)
+            {
+                if (hc.Parent != Entity::Null)
+                {
+                    child.GetComponent<HierarchyComponent>().Parent = hc.Parent;
+                    hc.Parent.AddChild(child);
+                }
+                else
+                {
+                    child.Unparent();
+                }
+            });
+        }
         mScene->mRegistry.destroy(mHandle);
         mHandle = entt::null;
         mScene = nullptr;
@@ -28,7 +46,7 @@ namespace ZenEngine
     {
         if (!HasComponent<HierarchyComponent>())
         {
-            ZE_CORE_WARN("The entity has no children!");
+            //ZE_CORE_WARN("The entity has no children!");
             return;
         }
 
@@ -37,8 +55,12 @@ namespace ZenEngine
 
         while (curr != Entity::Null) 
         {
+            // this allows the lambda to delete the entity
+            ZE_ASSERT_CORE_MSG(curr.HasComponent<HierarchyComponent>(), "Child does not have hierarcy component!");
+            auto next = curr.GetComponent<HierarchyComponent>().Next;
+
             if (inLambda(curr)) break;
-            curr = curr.GetComponent<HierarchyComponent>().Next;
+            curr = next;
         }
     }
 
@@ -46,7 +68,7 @@ namespace ZenEngine
     {
         if (!HasComponent<HierarchyComponent>())
         {
-            ZE_CORE_WARN("The entity has no father!");
+            //ZE_CORE_WARN("The entity has no father!");
             return;
         }
         auto &h = GetComponent<HierarchyComponent>();
@@ -54,20 +76,45 @@ namespace ZenEngine
 
         while (curr != Entity::Null)
         {
+            // this allows the lambda to delete the entity
+            ZE_ASSERT_CORE_MSG(curr.HasComponent<HierarchyComponent>(), "Child does not have hierarcy component!");
+            auto next = curr.GetComponent<HierarchyComponent>().Parent;
+
             if (inLambda(curr)) break;
-            curr = curr.GetComponent<HierarchyComponent>().Parent;
+            curr = next;
         }
+    }
+
+    glm::mat4 Entity::GetLocalTransform()
+    {
+        return GetComponent<TransformComponent>().GetTransform();
+    }
+
+    glm::mat4 Entity::GetWorldTransform()
+    {
+        return GetParentTransform() * GetLocalTransform();
+    }
+
+    glm::mat4 ZenEngine::Entity::GetParentTransform()
+    {
+        if (HasComponent<HierarchyComponent>())
+        {
+            auto &hc = GetComponent<HierarchyComponent>();
+            if (hc.Parent == Entity::Null)
+                return glm::mat4(1.0f);
+            if (hc.Parent.HasComponent<TransformComponent>())
+                return hc.Parent.GetWorldTransform();
+            return hc.Parent.GetParentTransform();
+        }
+        return glm::mat4(1.0f);
     }
 
     void Entity::AddChild(Entity &inEntity)
     {
 
         // make sure it is the same scene
-        if (mScene != inEntity.mScene)
-        {
-            ZE_CORE_ERROR("It is not possible to parent entities belonging to different scenes");
-            return;
-        }
+        ZE_ASSERT_CORE_MSG(mScene == inEntity.mScene, "It is not possible to parent entities belonging to different scenes");
+
         // TODO: technically we might want to check we are not creating a loop of entities
         // Something like
         if (inEntity.IsAncestorOf(*this))
@@ -80,14 +127,9 @@ namespace ZenEngine
         if (!HasComponent<HierarchyComponent>()) AddComponent<HierarchyComponent>();
         if (inEntity.HasComponent<HierarchyComponent>())
         {
+            inEntity.Unparent();
             auto &hierarchy = inEntity.GetComponent<HierarchyComponent>();
-            if (hierarchy.Parent != Entity::Null)
-            {
-                // we are reparenting, for now write something to console
-                ZE_CORE_WARN("Entity already has a parent. Reparenting");
-                hierarchy.Parent.RemoveChild(inEntity);
-                hierarchy.Parent = *this;
-            }
+            hierarchy.Parent = *this;
         }
         else
         {
@@ -115,11 +157,9 @@ namespace ZenEngine
 
     void Entity::RemoveChild(Entity &inEntity)
     {
-        if (mScene != inEntity.mScene)
-        {
-            ZE_CORE_ERROR("It is not possible to unparent entities belonging to different scenes");
-            return;
-        }
+        ZE_ASSERT_CORE_MSG(mScene == inEntity.mScene, "It is not possible to unparent entities belonging to different scenes!");
+        ZE_ASSERT_CORE_MSG(inEntity.HasComponent<HierarchyComponent>(), "Entity is not a child!");
+
         ForEachChildInterruptable([this, &inEntity](Entity child)
         {
             if (child == inEntity)
@@ -131,15 +171,20 @@ namespace ZenEngine
                     auto &prevH = prev.GetComponent<HierarchyComponent>();
                     prevH.Next = next;
                 }
+                else
+                {
+                    // this was the first component
+                    GetComponent<HierarchyComponent>().First = next;
+                }
                 if (next != Entity::Null)
                 {
                     auto &nextH = next.GetComponent<HierarchyComponent>();
                     nextH.Previous = prev;
                 }
-                // here we can be sure inEntity has a HierarchyComponent since it is a child
-                inEntity.GetComponent<HierarchyComponent>().Parent = Entity::Null;
-            
+
                 GetComponent<HierarchyComponent>().ChildrenCount--;
+                // here we can be sure inEntity has a HierarchyComponent since it is a child
+                inEntity.GetComponent<HierarchyComponent>().Parent = Entity::Null;            
                 return true;
             }
             return false;
@@ -161,6 +206,16 @@ namespace ZenEngine
             return false;
         });
         return isAncestor;
+    }
+
+    void Entity::Unparent()
+    {
+        ZE_ASSERT_CORE_MSG(HasComponent<HierarchyComponent>(), "Entity has no HierarchyComponent!");
+        auto &hc = GetComponent<HierarchyComponent>();
+        if (hc.Parent != Entity::Null) hc.Parent.RemoveChild(*this);
+        hc.Parent = Entity::Null;
+        hc.Next = Entity::Null;
+        hc.Previous = Entity::Null;
     }
 
 }

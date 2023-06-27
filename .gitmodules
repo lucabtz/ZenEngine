@@ -19,3 +19,6 @@
 [submodule "ZenEngine/vendor/cereal"]
 	path = ZenEngine/vendor/cereal
 	url = https://github.com/USCiLab/cereal
+[submodule "ZenEngine/vendor/ImGuizmo"]
+	path = ZenEngine/vendor/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo
