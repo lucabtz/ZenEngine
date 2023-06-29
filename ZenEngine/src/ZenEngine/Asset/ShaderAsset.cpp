@@ -30,6 +30,7 @@ namespace ZenEngine
     std::shared_ptr<AssetInstance> ShaderSerializer::Load(const Asset &inAsset) const
     {
         std::shared_ptr<ShaderAsset> shader = std::make_unique<ShaderAsset>();
+        shader->SetName(inAsset.Filepath.stem().string());
         shader->SetSourceCode(Filesystem::ReadFileToString(inAsset.Filepath));
         auto asset = std::static_pointer_cast<AssetInstance>(shader);
         SetId(asset, GetAssetId(inAsset.Filepath));

@@ -22,3 +22,6 @@
 [submodule "ZenEngine/vendor/ImGuizmo"]
 	path = ZenEngine/vendor/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
+[submodule "ZenEngine/vendor/hlsl2glslfork"]
+	path = ZenEngine/vendor/hlsl2glslfork
+	url = https://github.com/ekardnam/hlsl2glslfork

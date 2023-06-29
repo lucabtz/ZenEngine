@@ -67,7 +67,7 @@ namespace ZenEngine
 		case spirv_cross::SPIRType::BaseType::RayQuery:
 		case spirv_cross::SPIRType::BaseType::AccelerationStructure:
 		case spirv_cross::SPIRType::BaseType::AtomicCounter:
-        case spirv_cross::SPIRType::BaseType::Unknown:                  return ShaderReflector::ShaderType::Custom;
+        case spirv_cross::SPIRType::BaseType::Unknown: return ShaderReflector::ShaderType::Custom;
         }
         return ShaderReflector::ShaderType::Custom;
     }
@@ -79,12 +79,28 @@ namespace ZenEngine
 
         for (auto &uniformBuffer : resources.uniform_buffers)
         {
-            UniformBufferInfo ubInfo{};
+            UniformBufferInfo ubInfo;
             ubInfo.Name = uniformBuffer.name;
             ubInfo.Size = mCompiler.get_declared_struct_size(mCompiler.get_type(uniformBuffer.base_type_id));
             ubInfo.Binding = mCompiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
             ubInfo.Members = ReflectStruct_Internal(mCompiler.get_type(uniformBuffer.base_type_id), uniformBuffer.base_type_id);
             result.UniformBuffers.push_back(std::move(ubInfo));
+        }
+
+        for (auto &img : resources.sampled_images)
+        {
+            TextureInfo ti;
+            ti.Name = img.name;
+            ti.Binding = mCompiler.get_decoration(img.id, spv::DecorationBinding);
+            result.Textures.push_back(ti);
+        }
+
+        for (auto& img : resources.separate_images)
+        {
+            TextureInfo ti;
+            ti.Name = img.name;
+            ti.Binding = mCompiler.get_decoration(img.id, spv::DecorationBinding);
+            result.Textures.push_back(ti);
         }
 
         return result;

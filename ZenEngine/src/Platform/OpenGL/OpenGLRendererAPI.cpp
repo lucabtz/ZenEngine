@@ -66,15 +66,17 @@ namespace ZenEngine
     void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray> &inVertexArray)
     {
         inVertexArray->Bind();
-        inVertexArray->GetIndexBuffer()->Bind();
+        //inVertexArray->GetIndexBuffer()->Bind();
         glDrawElements(GL_TRIANGLES, inVertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+        inVertexArray->Unbind();
     }
 
     void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray> &inVertexArray, uint32_t inIndexCount)
     {
         inVertexArray->Bind();
-        inVertexArray->GetIndexBuffer()->Bind();
+        //inVertexArray->GetIndexBuffer()->Bind();
         glDrawElements(GL_TRIANGLES, inIndexCount, GL_UNSIGNED_INT, nullptr);
+        inVertexArray->Unbind();
     }
 
     void OpenGLRendererAPI::DrawLines(const std::shared_ptr<VertexArray> &inVertexArray, uint32_t inVertexCount)

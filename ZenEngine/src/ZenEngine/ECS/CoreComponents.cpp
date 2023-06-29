@@ -2,6 +2,7 @@
 
 #include "ZenEngine/Core/Math.h"
 #include "ZenEngine/Editor/EditorGUI.h"
+#include "ZenEngine/Asset/Texture2DAsset.h"
 
 namespace ZenEngine
 {
@@ -46,6 +47,19 @@ namespace ZenEngine
                     if (color != oldColor)
                         inStaticMeshComponent.Mat->Set<MaterialDataType::Float4>(name, color);
                 }
+            }
+
+            auto textures = inStaticMeshComponent.Mat->GetTextures();
+            for (auto &[name, texture] : textures)
+            {
+                if (!inStaticMeshComponent.TextureUUID.contains(name)) inStaticMeshComponent.TextureUUID[name] = 0;
+                
+                if (EditorGUI::InputAssetUUID<Texture2DAsset>(name, inStaticMeshComponent.TextureUUID[name]))
+                {
+                    auto tex = AssetManager::Get().LoadAssetAs<Texture2DAsset>(inStaticMeshComponent.TextureUUID[name]);
+                    inStaticMeshComponent.Mat->SetTexture(name, tex->CreateOrGetTexture2D());
+                }
+                
             }
         }
     }

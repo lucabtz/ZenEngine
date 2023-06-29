@@ -11,6 +11,8 @@ namespace ZenEngine
 {
     void AssetBrowser::OnRegister()
     {
+        stbi_set_flip_vertically_on_load(1);
+
         SetAssetIcon(ZenEngine::ShaderAsset::GetStaticAssetClassName(), "resources/Icons/ShaderIcon.png");
         SetAssetIcon(ZenEngine::StaticMesh::GetStaticAssetClassName(), "resources/Icons/MeshIcon.png");
 
@@ -19,6 +21,7 @@ namespace ZenEngine
         props.Height = ICON_RESOLUTION;
         props.Format = Texture2D::Format::RGBA8;
         mFolderIcon = Texture2D::Create(props);
+
         auto img = LoadIcon("resources/Icons/FolderIcon.png");
         mFolderIcon->SetData(img, ICON_RESOLUTION * ICON_RESOLUTION * 4);
         FreeIcon(img);
@@ -124,7 +127,7 @@ namespace ZenEngine
             }
 			
             ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
-			ImGui::ImageButton(reinterpret_cast<ImTextureID>(icon->GetRendererID()), { thumbnailSize, thumbnailSize });
+			ImGui::ImageButton(reinterpret_cast<ImTextureID>(icon->GetRendererID()), { thumbnailSize, thumbnailSize }, { 0 , 1 }, { 1, 0 });
 			ImGui::PopStyleColor();
             if (isDirectory)
             {

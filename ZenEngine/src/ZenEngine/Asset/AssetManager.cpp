@@ -17,6 +17,12 @@ namespace ZenEngine
         RegisterCoreAssets();
         if (!std::filesystem::exists(sAssetDirectory))
             std::filesystem::create_directories(sAssetDirectory);
+
+        if (!std::filesystem::exists(std::filesystem::path(sAssetDirectory) / "EngineAssets"))
+        {
+            std::filesystem::create_directories(std::filesystem::path(sAssetDirectory) / "EngineAssets");
+            ImportDefaultAssets();
+        }
         BuildAssetDatabase();
     }
 
@@ -50,6 +56,11 @@ namespace ZenEngine
 
     void AssetManager::Import(const std::filesystem::path &inFilepath, const std::filesystem::path &inDestinationFolder)
     {
+        Import(inFilepath, inDestinationFolder, UUID());
+    }
+
+    void AssetManager::Import(const std::filesystem::path &inFilepath, const std::filesystem::path &inDestinationFolder, UUID inUUID)
+    {
         ZE_CORE_INFO("Importing {} to {}", inFilepath.string(), inDestinationFolder.string());
 
         auto extension = inFilepath.extension().string();
@@ -69,8 +80,8 @@ namespace ZenEngine
                 uint32_t index = 0;
                 for (auto &importedAsset : importer->Import(inFilepath))
                 {
-                    mAssetDatabase[importedAsset.Id] = Asset(importedAsset, inDestinationFolder);
-                    SaveAsset(importedAsset.Instance, mAssetDatabase[importedAsset.Id]);
+                    mAssetDatabase[inUUID] = Asset(inUUID, importedAsset, inDestinationFolder);
+                    SaveAsset(importedAsset.Instance, mAssetDatabase[inUUID]);
                 }
                 break;
             }
@@ -173,7 +184,7 @@ namespace ZenEngine
         REGISTER_NEW_ASSET_CLASS_SERIALIZER(ZenEngine::ShaderAsset, ZenEngine::ShaderSerializer);
 
         REGISTER_NEW_ASSET_CLASS(ZenEngine::Texture2DAsset);
-        RegisterImporter(std::make_unique<PNGImporter>());
+        RegisterImporter(std::make_unique<STBImageImporter>());
     }
 
     bool AssetManager::SaveAsset(const std::shared_ptr<AssetInstance> &inAssetInstance, const Asset &inAsset)
@@ -215,6 +226,12 @@ namespace ZenEngine
                 }
             }
         }
+    }
+
+    void AssetManager::ImportDefaultAssets()
+    {
+        // import default texture
+        Import("resources/Textures/DefaultTexture.png", std::filesystem::path(sAssetDirectory) / "EngineAssets", 1);
     }
     
     void AssetManager::BuildAssetDatabase()

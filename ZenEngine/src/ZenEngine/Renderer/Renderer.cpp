@@ -38,7 +38,7 @@ namespace ZenEngine
         mShaderGlobals.ModelMatrix = inTransform;
         mShaderGlobalsBuffer->SetData(&mShaderGlobals.ModelMatrix, sizeof(glm::mat4), sizeof(glm::mat4));
         inShader->Bind();
-        Get().mRendererAPI->DrawIndexed(inVertexArray);
+        mRendererAPI->DrawIndexed(inVertexArray);
     }
 
     void Renderer::Submit(const std::shared_ptr<class VertexArray> &inVertexArray, const glm::mat4 &inTransform, const std::shared_ptr<Material> &inMaterial)
@@ -46,7 +46,7 @@ namespace ZenEngine
         mShaderGlobals.ModelMatrix = inTransform;
         mShaderGlobalsBuffer->SetData(&mShaderGlobals.ModelMatrix, sizeof(glm::mat4), sizeof(glm::mat4));
         inMaterial->Bind();
-        Get().mRendererAPI->DrawIndexed(inVertexArray);
+        mRendererAPI->DrawIndexed(inVertexArray);
     }
 
     void RenderCommand::Clear()

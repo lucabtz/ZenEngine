@@ -52,7 +52,6 @@ namespace ZenEngine
         void SwapBuffers() { Get().mRenderContext->SwapBuffers(); }
 
         const std::unique_ptr<RendererAPI> &GetRendererAPI() const { return mRendererAPI; }
-
     private:
         std::unique_ptr<RendererAPI> mRendererAPI;
         std::unique_ptr<RenderContext> mRenderContext;

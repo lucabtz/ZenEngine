@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "Shader.h"
+#include "Texture2D.h"
 #include "ZenEngine/ShaderCompiler/ShaderReflector.h"
 #include "ZenEngine/Core/Macros.h" 
 
@@ -12,6 +13,7 @@ namespace ZenEngine
 
     using MaterialParameterInfo = ShaderReflector::VariableInfo;
     using MaterialDataType = ShaderReflector::ShaderType;
+    using MaterialTextureInfo = ShaderReflector::TextureInfo;
 
     struct MaterialParameter
     {
@@ -22,10 +24,12 @@ namespace ZenEngine
         >;
         MaterialParameterInfo Info;
         ValueType Value;
+    };
 
-
-        MaterialParameter() = default;
-        MaterialParameter(const MaterialParameterInfo &inInfo) : Info(inInfo) {}
+    struct MaterialTexture
+    {
+        MaterialTextureInfo Info;
+        std::shared_ptr<Texture2D> Texture;
     };
 
 #pragma region "Type conversions"
@@ -123,15 +127,18 @@ namespace ZenEngine
             return std::get<typename MaterialDataTypeCppType<DataType>::Type>(mParameters[inName].Value);
         }
 
+        void SetTexture(const std::string &inName, const std::shared_ptr<Texture2D> &inTexture);
+
         const std::unordered_map<std::string, MaterialParameter> &GetParameters() const { return mParameters; }
+        const std::unordered_map<std::string, MaterialTexture> &GetTextures() const { return mTextures; } 
 
         void Bind();
         void Unbind();
 
     private:
         std::unordered_map<std::string, MaterialParameter> mParameters;
+        std::unordered_map<std::string, MaterialTexture> mTextures;
     
         std::shared_ptr<Shader> mShaderProgram;
-        
     };
 }

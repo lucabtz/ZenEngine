@@ -86,6 +86,8 @@ namespace ZenEngine
     {
         UUID ShaderId = 0;
         UUID MeshId = 0;
+
+        std::unordered_map<std::string, UUID> TextureUUID;
     
         std::shared_ptr<VertexArray> MeshVertexArray;
         std::shared_ptr<Material> Mat;

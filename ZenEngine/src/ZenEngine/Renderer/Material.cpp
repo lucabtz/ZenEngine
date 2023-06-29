@@ -1,10 +1,21 @@
 #include "Material.h"
 
+#include "ZenEngine/Asset/AssetManager.h"
+#include "ZenEngine/Asset/Texture2DAsset.h"
+
 namespace ZenEngine
 {
     std::shared_ptr<Material> Material::Create(const std::shared_ptr<Shader> &inShaderProgram)
     {
         return std::make_shared<Material>(inShaderProgram);
+    }
+
+    void Material::SetTexture(const std::string &inName, const std::shared_ptr<Texture2D> &inTexture)
+    {
+        if (mTextures.contains(inName))
+        {
+            mTextures[inName].Texture = inTexture;
+        }
     }
 
     void Material::Bind()
@@ -21,6 +32,12 @@ namespace ZenEngine
             case MaterialDataType::Mat4: mShaderProgram->SetMat4(param.Info.Name, std::get<glm::mat4>(param.Value)); break;
             default: ZE_ASSERT_CORE_MSG(false, "The parameter type is not currently supported!");
             }
+        }
+
+        for (auto &[_, texture]: mTextures)
+        {
+            ZE_ASSERT_CORE_MSG(texture.Texture != nullptr, "Texture is null!");
+            texture.Texture->Bind(texture.Info.Binding);
         }
         mShaderProgram->Bind();
     }
@@ -51,6 +68,12 @@ namespace ZenEngine
             case MaterialDataType::Bool: mParameters[name].Value = false; break;
             default: ZE_CORE_WARN("Material.cpp: This parameter is not a variant type!");
             }
+        }
+
+        for (auto &[name, info] : inShaderProgram->GetShaderTextureInfo())
+        {
+            mTextures[name].Info = info;
+            mTextures[name].Texture = AssetManager::Get().LoadAssetAs<Texture2DAsset>(1)->CreateOrGetTexture2D();
         }
     }
 

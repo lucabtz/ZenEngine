@@ -9,7 +9,7 @@ namespace ZenEngine
     {
         auto id = mAssetInstance->CreateOrGetTexture2D()->GetRendererID();
         auto props = mAssetInstance->GetTextureProperties();
-        ImGui::Image(reinterpret_cast<void*>(id), { (float)props.Width, (float)props.Height });
+        ImGui::Image(reinterpret_cast<void*>(id), { (float)props.Width, (float)props.Height }, { 0 , 1 }, { 1, 0 });
 
         EditorGUI::SelectableText("Width", fmt::format("{}", props.Width).c_str());
         EditorGUI::SelectableText("Height", fmt::format("{}", props.Height).c_str());

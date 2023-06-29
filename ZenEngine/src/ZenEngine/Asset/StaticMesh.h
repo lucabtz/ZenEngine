@@ -8,18 +8,19 @@
 
 namespace ZenEngine
 {
-    struct Vertex
+    struct alignas(float) Vertex
     {
         glm::vec3 Position;
-        glm::vec2 TexCoord;
         glm::vec3 Normal;
+        glm::vec2 TexCoord;
 
         template<typename Archive>
         void Serialize(Archive &inArchive)
         {
-            inArchive(Position, TexCoord, Normal); 
+            inArchive(Position, Normal, TexCoord); 
         }
     };
+    static_assert(sizeof(Vertex) == 8 * sizeof(float));
 
     class StaticMesh : public AssetInstance
     {

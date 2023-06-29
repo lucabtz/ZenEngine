@@ -9,8 +9,6 @@
 #include "ZenEngine/Core/Log.h"
 #include "ZenEngine/Core/Macros.h"
 #include "ZenEngine/ShaderCompiler/ShaderCompiler.h"
-#include "ZenEngine/ShaderCompiler/ShaderIncluder.h"
-#include "ZenEngine/ShaderCompiler/ShaderReflector.h"
 
 namespace ZenEngine
 {
@@ -28,12 +26,6 @@ namespace ZenEngine
         : mName(inName)
     {
         CreateShader(inSrc);
-    }
-
-    OpenGLShader::OpenGLShader(const std::string &inName, const std::vector<uint32_t> &inVtxSPIRV, const std::vector<uint32_t> &inPixSPIRV)
-        : mName(inName)
-    {
-        CreateShader(inVtxSPIRV, inPixSPIRV);
     }
 
     OpenGLShader::~OpenGLShader()
@@ -96,29 +88,24 @@ namespace ZenEngine
     {
         ShaderCompiler compiler(mName);
         auto res = compiler.Compile(inSrc);
-
-        CreateShader(res.VertexSPIRV, res.PixelSPIRV); 
+        Reflect(res.VertexReflectionInfo);
+        Reflect(res.PixelReflectionInfo);
+        CreateShader(res.SPIRV.VertexSPIRV, res.SPIRV.PixelSPIRV); 
     }
 
     void OpenGLShader::CreateShader(const std::vector<uint32_t> &inVtxSPIRV, const std::vector<uint32_t> &inPixSPIRV)
     {
-        PrintReflectInfo(inVtxSPIRV, "Vertex");
-        PrintReflectInfo(inPixSPIRV, "Pixel");
-
-        Reflect(inVtxSPIRV);
-        Reflect(inPixSPIRV);
-
         GLuint program = glCreateProgram();
 
         GLuint ids[2];
         ids[0] = glCreateShader(GL_VERTEX_SHADER);
         glShaderBinary(1, &ids[0], GL_SHADER_BINARY_FORMAT_SPIR_V, inVtxSPIRV.data(), inVtxSPIRV.size() * sizeof(uint32_t));
-        glSpecializeShader(ids[0], "VSMain", 0, nullptr, nullptr);
+        glSpecializeShader(ids[0], "main", 0, nullptr, nullptr);
         glAttachShader(program, ids[0]);
 
         ids[1] = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderBinary(1, &ids[1], GL_SHADER_BINARY_FORMAT_SPIR_V, inPixSPIRV.data(), inPixSPIRV.size() * sizeof(uint32_t));
-        glSpecializeShader(ids[1], "PSMain", 0, nullptr, nullptr);
+        glSpecializeShader(ids[1], "main", 0, nullptr, nullptr);
         glAttachShader(program, ids[1]);
 
         glLinkProgram(program);
@@ -149,28 +136,10 @@ namespace ZenEngine
         mRendererId = program;
     }
 
-    void OpenGLShader::PrintReflectInfo(std::vector<uint32_t> inSpirvSrc, const std::string &inStageName)
+    void OpenGLShader::Reflect(const ShaderReflector::ReflectionResult &inResult)
     {
-        ZE_CORE_INFO("Shader {} {}", mName, inStageName);
-        ShaderReflector reflector(std::move(inSpirvSrc));
-        auto result = reflector.Reflect();
-        ZE_CORE_INFO("Uniform buffers");
-        for (auto &ub : result.UniformBuffers)
-        {
-            ZE_CORE_INFO("\t{}, Size {}, Binding {}", ub.Name, ub.Size, ub.Binding);
-            for (auto &member : ub.Members)
-            {
-                ZE_CORE_INFO("\t\t- {} {}, Size {}", ShaderReflector::ShaderTypeToString(member.Type), member.Name, member.Size);
-            }
-        }
-    }
-
-    void OpenGLShader::Reflect(std::vector<uint32_t> inSpirvSrc)
-    {
-        ShaderReflector reflector(std::move(inSpirvSrc));
-        auto result = reflector.Reflect();
-        auto it = std::find_if(result.UniformBuffers.begin(), result.UniformBuffers.end(), [](auto &ubInfo){ return ubInfo.Name == "$Global"; });
-        if (it != result.UniformBuffers.end())
+        auto it = std::find_if(inResult.UniformBuffers.begin(), inResult.UniformBuffers.end(), [](auto &ubInfo){ return ubInfo.Name == "$Global"; });
+        if (it != inResult.UniformBuffers.end())
         {
             if (mUniformBuffer == nullptr) mUniformBuffer = UniformBuffer::Create(it->Size, it->Binding);
             for (auto &uniform : it->Members)
@@ -180,5 +149,24 @@ namespace ZenEngine
                 mUniforms[uniform.Name] = uniform;
             }
         }
+
+        for (auto &texInfo : inResult.Textures)
+            mTextures[texInfo.Name] = texInfo;
+
+#pragma region "Printing"
+        ZE_CORE_INFO("Uniform buffers");
+        for (auto &ub : inResult.UniformBuffers)
+        {
+            ZE_CORE_INFO("\t{}, Size {}, Binding {}", ub.Name, ub.Size, ub.Binding);
+            for (auto &member : ub.Members)
+            {
+                ZE_CORE_INFO("\t\t- {} {}, Size {}", ShaderReflector::ShaderTypeToString(member.Type), member.Name, member.Size);
+            }
+        }
+        for (auto &texture : inResult.Textures)
+        {
+            ZE_CORE_INFO("\t{} Binding {}", texture.Name, texture.Binding);
+        }
+#pragma endregion
     }
 }

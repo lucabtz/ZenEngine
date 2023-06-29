@@ -121,6 +121,7 @@ namespace ZenEngine
     {
         glBindVertexArray(mRendererId);
         indexBuffer->Bind();
+        glBindVertexArray(0);
 
         mIndexBuffer = indexBuffer;
     }

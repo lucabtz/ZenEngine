@@ -65,6 +65,7 @@ namespace ZenEngine
     }
     void OpenGLTexture2D::Bind(uint32_t inSlot) const
     {
-        glBindTextureUnit(inSlot, mRendererId);
+        glActiveTexture(GL_TEXTURE0 + inSlot);
+        glBindTexture(GL_TEXTURE_2D, mRendererId);
     }
 }

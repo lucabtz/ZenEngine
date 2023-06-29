@@ -14,8 +14,8 @@ namespace ZenEngine
         {
             BufferLayout layout{
                 { ShaderDataType::Float3, "Position" },
-                { ShaderDataType::Float2, "TexCoord" },
-                { ShaderDataType::Float3, "Normal" }
+                { ShaderDataType::Float3, "Normal" },
+                { ShaderDataType::Float2, "TexCoord" }
             };
             auto vb = VertexBuffer::Create((float*)mVertices.data(), mVertices.size() * sizeof(Vertex));
             vb->SetLayout(layout);
@@ -50,9 +50,9 @@ namespace ZenEngine
             for (auto &vertex : curMesh.Vertices)
             {
                 mesh->PushVertex({
-                    { vertex.Position.X, vertex.Position.Y, vertex.Position.Z },
-                    { vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y },
-                    { vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z }
+                    .Position = { vertex.Position.X, vertex.Position.Y, vertex.Position.Z },
+                    .Normal = { vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z },
+                    .TexCoord = { vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y }
                 });
             }
 

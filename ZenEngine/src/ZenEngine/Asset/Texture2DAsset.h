@@ -42,10 +42,10 @@ namespace ZenEngine
         friend class cereal::access;
     };
 
-    class PNGImporter : public AssetImporter
+    class STBImageImporter : public AssetImporter
     {
         public:
-        virtual const char *GetName() const { return "PNGImporter"; }
+        virtual const char *GetName() const { return "STBImageImporter"; }
         virtual std::unordered_set<std::string> GetImportableExtensions() const 
         {
             return { ".png" };

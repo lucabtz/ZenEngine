@@ -13,12 +13,14 @@ namespace ZenEngine
         return mTexture2D;
     }
 
-    std::vector<ImportedAsset> PNGImporter::Import(const std::filesystem::path &inFilepath)
+    std::vector<ImportedAsset> STBImageImporter::Import(const std::filesystem::path &inFilepath)
     {
         int width;
         int height;
         int channels;
+        stbi_set_flip_vertically_on_load(1);
         uint8_t *imageData = stbi_load(inFilepath.string().c_str(), &width, &height, &channels, 4);
+        ZE_CORE_INFO("Image\n\twidth: {}\n\theight: {}\n\tchannels: {}", width, height, channels);
         Texture2D::Properties props;
         props.Width = width;
         props.Height = height;
@@ -39,8 +41,9 @@ namespace ZenEngine
 
         ImportedAsset imported;
         imported.ClassName = Texture2DAsset::GetStaticAssetClassName();
-        imported.Filename = inFilepath.stem();
+        imported.Filename = inFilepath.filename().replace_extension(".zasset");
         imported.Instance = textureAsset;
+        stbi_image_free(imageData);
 
         return { imported };
     }

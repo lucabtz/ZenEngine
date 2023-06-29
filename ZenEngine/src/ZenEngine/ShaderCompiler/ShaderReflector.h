@@ -4,7 +4,6 @@
 #include <vector>
 #include <spirv_cross/spirv_hlsl.hpp>
 
-
 namespace ZenEngine
 {
 
@@ -35,9 +34,16 @@ namespace ZenEngine
             std::vector<VariableInfo> Members;
         };
 
+        struct TextureInfo
+        {
+            std::string Name;
+            uint32_t Binding;
+        };
+
         struct ReflectionResult
         {
             std::vector<UniformBufferInfo> UniformBuffers;
+            std::vector<TextureInfo> Textures;
         };
 
         ShaderReflector(std::vector<uint32_t> inSpirvSrc) : mCompiler(std::move(inSpirvSrc)) {}

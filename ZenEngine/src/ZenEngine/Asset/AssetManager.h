@@ -18,7 +18,6 @@ namespace ZenEngine
 
     struct ImportedAsset
     {
-        UUID Id;
         std::filesystem::path Filename;
         const char *ClassName;
         std::shared_ptr<AssetInstance> Instance;
@@ -31,8 +30,8 @@ namespace ZenEngine
         const char *ClassName;
        
         Asset() = default;
-        Asset(const ImportedAsset &inImportedAsset, const std::filesystem::path &inDestinationPath)
-            : Id(inImportedAsset.Id), Filepath(inDestinationPath / inImportedAsset.Filename), ClassName(inImportedAsset.ClassName)
+        Asset(UUID inId, const ImportedAsset &inImportedAsset, const std::filesystem::path &inDestinationPath)
+            : Id(inId), Filepath(inDestinationPath / inImportedAsset.Filename), ClassName(inImportedAsset.ClassName)
         {}
 
         std::string GetName() const { return Filepath.stem().string(); }
@@ -95,6 +94,7 @@ namespace ZenEngine
 
         void Import(const std::filesystem::path &inFilepath);
         void Import(const std::filesystem::path &inFilepath, const std::filesystem::path &inDestinationFolder);
+        void Import(const std::filesystem::path &inFilepath, const std::filesystem::path &inDestinationFolder, UUID inUUID);
 
         void BuildAssetDatabase();
         const std::unordered_map<UUID, Asset> &GetAssetDatabase() const;
@@ -127,6 +127,7 @@ namespace ZenEngine
 
         bool SaveAsset(const std::shared_ptr<AssetInstance> &inAssetType, const Asset &inAsset);
         void BuildAssetDatabaseFrom(const std::filesystem::path &inImportFolder);
+        void ImportDefaultAssets();
     };
 
 

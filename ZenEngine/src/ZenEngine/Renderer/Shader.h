@@ -12,6 +12,7 @@ namespace ZenEngine
     {
     public:
         using ShaderUniformInfo = std::unordered_map<std::string, ShaderReflector::VariableInfo>;
+        using ShaderTextureInfo = std::unordered_map<std::string, ShaderReflector::TextureInfo>;
 
         virtual ~Shader() = default;
 
@@ -26,10 +27,10 @@ namespace ZenEngine
         virtual void SetMat4(const std::string &inName, const glm::mat4 &inValue) = 0;
 
         virtual ShaderUniformInfo GetShaderUniformInfo() const = 0;
+        virtual ShaderTextureInfo GetShaderTextureInfo() const = 0;
 
         static std::shared_ptr<Shader> Create(const std::string &inFilepath);
         static std::shared_ptr<Shader> Create(const std::string &inName, const std::string &inSrc);
-        static std::shared_ptr<Shader> Create(const std::string &inName, const std::vector<uint32_t> &inVtxSPIRV, const std::vector<uint32_t> &inPixSPIRV);
     };
 
 }

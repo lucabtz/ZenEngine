@@ -14,7 +14,6 @@ namespace ZenEngine
     public:
         OpenGLShader(const std::string &inFilepath);
         OpenGLShader(const std::string &inName, const std::string &inSrc);
-        OpenGLShader(const std::string &inName, const std::vector<uint32_t> &inVtxSPIRV, const std::vector<uint32_t> &inPixSPIRV);
 
         virtual ~OpenGLShader();
 
@@ -29,17 +28,18 @@ namespace ZenEngine
         virtual void SetMat4(const std::string &inName, const glm::mat4 &inValue) override;
 
         virtual ShaderUniformInfo GetShaderUniformInfo() const override { return mUniforms; }
+        virtual ShaderTextureInfo GetShaderTextureInfo() const override { return mTextures; }
     private:
         std::string mName;
         uint32_t mRendererId;
         std::unordered_map<std::string, ShaderReflector::VariableInfo> mUniforms;
+        ShaderTextureInfo mTextures;
 
         std::shared_ptr<UniformBuffer> mUniformBuffer;
 
         void CreateShader(const std::string &inSrc);
         void CreateShader(const std::vector<uint32_t> &inVtxSPIRV, const std::vector<uint32_t> &inPixSPIRV);
-        void PrintReflectInfo(std::vector<uint32_t> inSpirvSrc, const std::string &inStageName);
-        void Reflect(std::vector<uint32_t> inSpirvSrc);
+        void Reflect(const ShaderReflector::ReflectionResult &inResult);
 
         void SetUniform(const std::string &inName, void *inData, ShaderReflector::ShaderType inShaderType);
 
