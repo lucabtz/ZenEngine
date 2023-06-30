@@ -58,13 +58,23 @@ namespace ZenEngine
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
             
             auto &tc = selectedEntity.GetComponent<TransformComponent>();
-            //glm::mat4 transform = selectedEntity.GetLocalTransform();
             glm::mat4 worldTransform = selectedEntity.GetWorldTransform();
             ImGuizmo::Manipulate(
                 glm::value_ptr(mCamera.GetView()), glm::value_ptr(mCamera.GetProjection()), 
                 mGizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(worldTransform)
             );
-            Math::DecomposeMatrix(glm::inverse(selectedEntity.GetParentTransform()) * worldTransform, tc.Position, tc.Rotation, tc.Scale);
+            if (ImGuizmo::IsUsing())
+            {
+                glm::vec3 newPosition, newScale;
+                glm::quat newRotation;
+
+                if (Math::DecomposeMatrix(glm::inverse(selectedEntity.GetParentTransform()) * worldTransform, newPosition, newRotation, newScale))
+                {
+                    tc.Position = newPosition;
+                    tc.Rotation = newRotation;
+                    tc.Scale = newScale;
+                }
+            }
         }
     }
 
