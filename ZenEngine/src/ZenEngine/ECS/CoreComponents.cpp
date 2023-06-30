@@ -17,6 +17,18 @@ namespace ZenEngine
         EditorGUI::InputVec3("Position", inTransformComponent.Position);
 
         glm::vec3 rotation = inTransformComponent.GetEulerAngles();
+
+        for (int i = 0; i < 3; ++i)
+        {
+            // avoid display flickering between 180 and -180
+            if (glm::epsilonEqual<float>(rotation[i], -180.0f, glm::epsilon<float>()))
+                rotation[i] = 180.0f;
+            
+            // avoid display flickering between 0 and -0
+            if (glm::epsilonEqual<float>(rotation[i], 0.0f, glm::epsilon<float>()))
+                rotation[i] = 0.0f;
+        }
+
         EditorGUI::InputVec3("Rotation", rotation);
         inTransformComponent.SetRotation(rotation);
 
