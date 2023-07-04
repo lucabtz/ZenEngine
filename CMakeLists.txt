@@ -7,7 +7,8 @@ find_package(Vulkan OPTIONAL_COMPONENTS shaderc_combined SPIRV-Tools REQUIRED)
 
 message("Vulkan includes are at ${Vulkan_INCLUDE_DIRS}")
 
-include_directories(ZenEngine/src 
+include_directories(
+    ZenEngine/src 
     ZenEngine/include 
     SYSTEM ZenEngine/vendor/spdlog/include 
     SYSTEM ZenEngine/vendor/glfw/include 

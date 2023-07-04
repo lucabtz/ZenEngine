@@ -1,4 +1,5 @@
 #include "MeshEditor.h"
+#include "EditorGUI.h"
 
 namespace ZenEngine
 {

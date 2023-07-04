@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 #include "ZenEngine/Core/Game.h"
+#include "ZenEngine/Renderer/Renderer.h"
 #include "ZenEngine/Asset/AssetManager.h"
 
 #include "FileDialog.h"
@@ -18,15 +19,14 @@ namespace ZenEngine
 {
     Editor *Editor::sEditorInstance = nullptr;
 
-    Editor::Editor() : Layer("ZenEditor")
+    Editor::Editor()
     {
         ZE_ASSERT_CORE_MSG(sEditorInstance == nullptr, "An Editor already exists!");
         sEditorInstance = this;
     }
 
-    void Editor::OnAttach()
+    void Editor::Init()
     {
-        ZE_CORE_INFO("Attaching editor");
         RegisterEditorWindow(std::make_unique<EditorViewport>());
         RegisterEditorWindow(std::make_unique<AssetManagerDatabase>());
         RegisterEditorWindow(std::make_unique<SceneHierarchy>());
@@ -121,6 +121,13 @@ namespace ZenEngine
                 ImGui::EndMenu();
             }
 
+            if (ImGui::BeginMenu("Debug"))
+            {
+                if (ImGui::MenuItem("Recompile Lighting Model Shader"))
+                    Renderer::Get().RecompileLightingModelShader();
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenuBar();
         }
         for (const auto &window : mEditorWindows)
@@ -181,6 +188,16 @@ namespace ZenEngine
             mActiveScene->OnRender(inDeltaTime);
     }
 
+    void Editor::BeginScene()
+    {
+        EditorViewport::Get().BeginScene();
+    }
+
+    void Editor::FlushScene()
+    {
+        EditorViewport::Get().FlushScene();
+    }
+
     void Editor::OnEvent(const std::unique_ptr<Event> &inEvent)
     {
         for (auto &window : mEditorWindows)
@@ -188,24 +205,6 @@ namespace ZenEngine
             if (!window->IsOpen()) continue;
             window->OnEvent(inEvent);
         }
-    }
-
-    void Editor::BeginRenderGame()
-    {
-        for (auto &window : mEditorWindows)
-            window->OnBeginRenderGame();
-
-        for (auto &[_, assetEditor] : mAssetEditors)
-            assetEditor->OnBeginRenderGame();
-    }
-
-    void Editor::EndRenderGame()
-    {
-        for (auto &window : mEditorWindows)
-            window->OnEndRenderGame();
-
-        for (auto &[_, assetEditor] : mAssetEditors)
-            assetEditor->OnEndRenderGame();
     }
 
     void Editor::RegisterEditorWindow(std::unique_ptr<EditorWindow> inWindow)

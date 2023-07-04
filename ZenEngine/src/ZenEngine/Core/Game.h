@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <filesystem>
+#include "ZenEngine/Editor/Editor.h"
 #include "ZenEngine/Core/Macros.h"
 #include "ZenEngine/Core/Window.h"
 #include "ZenEngine/Event/EventBus.h"
@@ -61,6 +62,10 @@ namespace ZenEngine
         LayerStack mLayerStack;
 
         std::unique_ptr<Window> mWindow;
+    
+    #ifdef WITH_EDITOR
+        std::unique_ptr<Editor> mEditor;
+    #endif
 
         bool mIsRunning;
 

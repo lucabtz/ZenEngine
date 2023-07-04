@@ -18,6 +18,11 @@ namespace ZenEngine
         
         // first we have to compile the vertex shader
         auto preProcessedVertex = compiler.PreprocessGlsl(inSource, shaderc_vertex_shader, mName.c_str(), options);
+        if (preProcessedVertex.GetCompilationStatus() != shaderc_compilation_status_success)
+        {
+            ZE_CORE_ERROR("Failed precompilation {} shader vertex: {}", mName, preProcessedVertex.GetErrorMessage());
+            ZE_ASSERT(false);
+        }
         std::string preProcessedVtxSrc(preProcessedVertex.begin(), preProcessedVertex.end());
         shaderc::SpvCompilationResult vertexRes = compiler.CompileGlslToSpv(preProcessedVtxSrc.c_str(), preProcessedVtxSrc.length(), shaderc_vertex_shader, mName.c_str(), "VSMain", options);
         if (vertexRes.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -28,6 +33,11 @@ namespace ZenEngine
         
         // then we compile the pixel shader
         auto preProcessedPixel = compiler.PreprocessGlsl(inSource, shaderc_fragment_shader, mName.c_str(), options);
+        if (preProcessedPixel.GetCompilationStatus() != shaderc_compilation_status_success)
+        {
+            ZE_CORE_ERROR("Failed precompilation {} shader pixel: {}", mName, preProcessedPixel.GetErrorMessage());
+            ZE_ASSERT(false);
+        }
         std::string preProcessedPixSrc(preProcessedPixel.begin(), preProcessedPixel.end());
         shaderc::SpvCompilationResult pixelRes = compiler.CompileGlslToSpv(preProcessedPixSrc.c_str(), preProcessedPixSrc.length(), shaderc_fragment_shader, mName.c_str(), "PSMain", options);
         if (pixelRes.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -75,7 +85,7 @@ namespace ZenEngine
             InheritCombinedSamplerBindings(glslCompiler);
             return glslCompiler.compile();
         }
-        catch(const spirv_cross::CompilerError& e)
+        catch (const spirv_cross::CompilerError& e)
         {
             ZE_CORE_ERROR("SPIRV-Cross Compiler Error {}", e.what());
             ZE_ASSERT(false);
@@ -105,6 +115,7 @@ namespace ZenEngine
         shaderc::CompileOptions options;
         options.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
         options.SetSourceLanguage(shaderc_source_language_glsl);
+        options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
         shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(inSource, ShaderStageToShadercKind(inStage), inName.c_str());
         if (result.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -133,8 +144,17 @@ namespace ZenEngine
         auto vulkanSPIRV = CompileHLSLToVulkan(inSource);
         ShaderReflector vertReflector(vulkanSPIRV.VertexSPIRV);
         ShaderReflector pixlReflector(vulkanSPIRV.PixelSPIRV);
-        result.VertexReflectionInfo = vertReflector.Reflect();
-        result.PixelReflectionInfo = pixlReflector.Reflect();
+        try
+        {
+            result.VertexReflectionInfo = vertReflector.Reflect();
+            result.PixelReflectionInfo = pixlReflector.Reflect();
+        }
+        catch (const spirv_cross::CompilerError& e)
+        {
+            ZE_CORE_ERROR("Compile error in reflection: {}", e.what());
+            ZE_ASSERT(false);
+        }
+        
         CacheVulkanBinary(vulkanSPIRV);
 
         auto glslSource = CompileVulkanSPIRVToGLSL(std::move(vulkanSPIRV));

@@ -35,6 +35,20 @@ namespace ZenEngine
         EditorGUI::InputVec3("Scale", inTransformComponent.Scale, 1.0f);
     }
 
+    template <MaterialDataType Type>
+    static void RenderShaderParam(
+        const std::string &inName,
+        const MaterialParameter &inParam,
+        const std::shared_ptr<Material> &inMaterial,
+        std::function<void(const std::string &, typename MaterialDataTypeCppType<Type>::Type &)> inUiFunc)
+    {
+        auto old = inMaterial->Get<Type>(inName);
+        auto newValue = old;
+        inUiFunc(inName, newValue);
+        if (newValue != old)
+            inMaterial->Set<Type>(inName, newValue);
+    }
+
     void StaticMeshComponentRenderer::RenderProperties(Entity inSelectedEntity, StaticMeshComponent &inStaticMeshComponent)
     {
         if (EditorGUI::InputAssetUUID<StaticMesh>("Mesh", inStaticMeshComponent.MeshId))
@@ -51,14 +65,24 @@ namespace ZenEngine
             auto params = inStaticMeshComponent.Mat->GetParameters();
             for (auto &[name, parameter] : params)
             {
-                if (parameter.Info.Type == MaterialDataType::Float4)
+
+            #define RENDER_PARAM(type, uifunc)\
+                case type: RenderShaderParam<type>(name, parameter, inStaticMeshComponent.Mat, [](const std::string &displayName, typename MaterialDataTypeCppType<type>::Type &value){uifunc});\
+                break;
+
+                switch (parameter.Info.Type)
                 {
-                    auto oldColor = inStaticMeshComponent.Mat->Get<MaterialDataType::Float4>(name);
-                    glm::vec4 color = oldColor;
-                    ImGui::ColorEdit4(name.c_str(), &color.x);
-                    if (color != oldColor)
-                        inStaticMeshComponent.Mat->Set<MaterialDataType::Float4>(name, color);
+                RENDER_PARAM(MaterialDataType::Float,   ImGui::InputFloat(displayName.c_str(), &value);)
+                RENDER_PARAM(MaterialDataType::Float2,  ImGui::InputFloat2(displayName.c_str(), &value[0]);)
+                RENDER_PARAM(MaterialDataType::Float3,  ImGui::ColorEdit3(displayName.c_str(), &value[0]);)
+                RENDER_PARAM(MaterialDataType::Float4,  ImGui::ColorEdit4(displayName.c_str(), &value[0]);)
+                RENDER_PARAM(MaterialDataType::Int,     ImGui::InputInt(displayName.c_str(), &value);)
+                RENDER_PARAM(MaterialDataType::Int2,    ImGui::InputInt2(displayName.c_str(), &value[0]);)
+                RENDER_PARAM(MaterialDataType::Int3,    ImGui::InputInt3(displayName.c_str(), &value[0]);)
+                RENDER_PARAM(MaterialDataType::Int4,    ImGui::InputInt4(displayName.c_str(), &value[0]);) 
+                RENDER_PARAM(MaterialDataType::Bool,    ImGui::Checkbox(displayName.c_str(), &value);)
                 }
+            #undef RENDER_PARAM
             }
 
             auto textures = inStaticMeshComponent.Mat->GetTextures();
@@ -74,5 +98,17 @@ namespace ZenEngine
                 
             }
         }
+    }
+
+    void AmbientLightComponentRenderer::RenderProperties(Entity inSelectedEntity, AmbientLightComponent &inAmbientLightComponent)
+    {
+        ImGui::ColorEdit3("Light Color", &inAmbientLightComponent.Info.AmbientLightColor[0]);
+        ImGui::InputFloat("Intensity", &inAmbientLightComponent.Info.AmbientLightIntensity);
+    }
+
+    void DirectionalLightComponentRenderer::RenderProperties(Entity inSelectedEntity, DirectionalLightComponent &inDirectionalLightComponent)
+    {
+        ImGui::ColorEdit3("Light Color", &inDirectionalLightComponent.Color[0]);
+        ImGui::InputFloat("Intensity", &inDirectionalLightComponent.Intensity);
     }
 }

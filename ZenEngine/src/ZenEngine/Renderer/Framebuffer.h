@@ -3,8 +3,6 @@
 #include <memory>
 #include <vector>
 
-#include "Renderer.h"
-
 namespace ZenEngine
 {
 
@@ -65,6 +63,10 @@ namespace ZenEngine
         virtual void Resize(uint32_t inWidth, uint32_t inHeight) = 0;
 
         virtual uint32_t GetColorAttachmentRendererId(uint32_t inIndex = 0) const = 0;
+
+        virtual void BindColorAttachmentTexture(uint32_t inIndex = 0, uint32_t inSlot = 0) const = 0;
+        virtual void BindDepthAttachmentTexture(uint32_t inSlot = 0) const = 0;
+        virtual void BindAllAttachments(uint32_t inStartingSlot = 0) const = 0;
 
         virtual const Properties &GetProperties() const = 0;
 

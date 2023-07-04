@@ -184,4 +184,27 @@ namespace ZenEngine
         Invalidate();
     }
 
+    void OpenGLFramebuffer::BindColorAttachmentTexture(uint32_t inIndex, uint32_t inSlot) const
+    {
+        ZE_ASSERT_CORE_MSG(inIndex < mColorAttachmentsIds.size(), "Invalid index given!"); 
+        glActiveTexture(GL_TEXTURE0 + inSlot);
+        glBindTexture(GL_TEXTURE_2D, mColorAttachmentsIds[inIndex]);
+    }
+
+    void OpenGLFramebuffer::BindDepthAttachmentTexture(uint32_t inSlot) const
+    {
+        ZE_ASSERT_CORE_MSG(mDepthAttachmentId != 0, "The framebuffer has no depth attachment!");
+        glActiveTexture(GL_TEXTURE0 + inSlot);
+        glBindTexture(GL_TEXTURE_2D, mDepthAttachmentId);
+        glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_STENCIL_TEXTURE_MODE, GL_DEPTH_COMPONENT);
+    }
+
+    void OpenGLFramebuffer::BindAllAttachments(uint32_t inStartingSlot) const
+    {
+        for (uint32_t i = 0; i < mColorAttachmentsIds.size(); ++i)
+        {
+            BindColorAttachmentTexture(i, inStartingSlot + i);
+        }
+        BindDepthAttachmentTexture(inStartingSlot + mColorAttachmentsIds.size());
+    }
 }

@@ -111,9 +111,7 @@ namespace ZenEngine
         auto size = mCompiler.get_declared_struct_size(inType);
         std::vector<VariableInfo> result;
 
-        uint32_t currentSize = 0;
-        uint32_t index = 0;
-        while (currentSize < size)
+        for (uint32_t index = 0; index < inType.member_types.size(); ++index)
         {
             VariableInfo vi{};
             vi.Name = mCompiler.get_member_name(inTypeId, index);
@@ -121,10 +119,8 @@ namespace ZenEngine
             vi.TypeId_Internal = mCompiler.get_type(inTypeId).member_types[index];
             vi.Type_Internal = mCompiler.get_type(vi.TypeId_Internal);
             vi.Type = SPIRVReflectTypeToShaderType(vi.Type_Internal.basetype, vi.Type_Internal.vecsize, vi.Type_Internal.columns);
-            vi.Offset = currentSize;
-            currentSize += vi.Size;
+            vi.Offset = mCompiler.type_struct_member_offset(inType, index);
             result.push_back(std::move(vi));
-            index += 1;
         }
 
         return result;

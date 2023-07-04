@@ -83,7 +83,7 @@ namespace ZenEngine
 
     void EditorCamera::UpdateView()
     {
-        mPosition = CalculatePosition();
+        mPosition = GetPosition();
 
         glm::quat orientation = GetOrientation();
         mViewMatrix = glm::translate(glm::mat4(1.0f), mPosition) * glm::toMat4(orientation);
@@ -96,7 +96,7 @@ namespace ZenEngine
         mProjectionMatrix = glm::perspective(mFOV, mAspectRatio, mNearClip, mFarClip);
     }
 
-    glm::vec3 EditorCamera::CalculatePosition() const
+    glm::vec3 EditorCamera::GetPosition() const
     {
         return mFocusPoint - mDistance * GetForwardDirection();
     }

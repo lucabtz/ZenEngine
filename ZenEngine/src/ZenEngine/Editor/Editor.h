@@ -1,32 +1,29 @@
 #pragma once
 
-#include "ZenEngine/Core/Layer.h"
-#include "ZenEngine/ECS/Scene.h"
 #include "ZenEngine/ECS/Entity.h"
+#include "ZenEngine/ECS/Scene.h"
 
 #include "EditorWindow.h"
 #include "AssetEditor.h"
 
 namespace ZenEngine
 {
-    class Editor : public Layer
+    class Editor
     {
     public:
         Editor();
 
-        virtual void OnAttach() override;
-        virtual void OnRenderEditorGUI() override;
-        virtual void OnUpdate(float inDeltaTime) override;
-        virtual void OnRender(float inDeltaTime) override;
+        void Init();
+        void OnRenderEditorGUI();
+        void OnUpdate(float inDeltaTime);
+        void OnRender(float inDeltaTime);
+        void BeginScene();
+        void FlushScene();
 
-        virtual void OnEvent(const std::unique_ptr<Event> &inEvent) override;
-
-        void BeginRenderGame();
-        void EndRenderGame();
+        void OnEvent(const std::unique_ptr<Event> &inEvent);
 
         void RegisterEditorWindow(std::unique_ptr<EditorWindow> inWindow);
 
-        Entity CurrentlySelectedEntity = Entity::Null;
         std::shared_ptr<Scene> &GetActiveScene() { return mActiveScene; }
 
         void OpenAsset(UUID inUUID);
@@ -41,6 +38,8 @@ namespace ZenEngine
         }
 
         static Editor &Get() { ZE_ASSERT_CORE_MSG(sEditorInstance != nullptr, "Editor does not exist!"); return *sEditorInstance; }
+        
+        Entity CurrentlySelectedEntity = Entity::Null;
     private:
         std::vector<std::unique_ptr<EditorWindow>> mEditorWindows;
         std::unordered_map<UUID, std::unique_ptr<AssetEditor>> mAssetEditors;

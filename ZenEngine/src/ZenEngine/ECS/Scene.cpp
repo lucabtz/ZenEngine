@@ -59,4 +59,26 @@ namespace ZenEngine
             system->OnUpdate(inDeltaTime);
         }
     }
+    Renderer::LightInfo Scene::GetLights()
+    {
+        Renderer::LightInfo lightInfo{};
+        auto directionalLightView = mRegistry.view<DirectionalLightComponent, TransformComponent>();
+        auto directionalLightEntity = directionalLightView.front();
+        if (directionalLightEntity != entt::null)
+        {
+            auto &dlc = directionalLightView.get<DirectionalLightComponent>(directionalLightEntity);
+            auto &tc = directionalLightView.get<TransformComponent>(directionalLightEntity);
+            lightInfo.Directional.DirectionalLightIntensity = dlc.Intensity;
+            lightInfo.Directional.DirectionalLightColor = dlc.Color;
+            lightInfo.Directional.DirectionalLightDirection = tc.GetForwardVector();
+        }
+        auto ambientLightView = mRegistry.view<AmbientLightComponent>();
+        auto ambientLightEntity = ambientLightView.front();
+        if (ambientLightEntity != entt::null)
+        {
+            auto &alc = ambientLightView.get<AmbientLightComponent>(ambientLightEntity);
+            lightInfo.Ambient = alc.Info;
+        }
+        return lightInfo;
+    }
 }

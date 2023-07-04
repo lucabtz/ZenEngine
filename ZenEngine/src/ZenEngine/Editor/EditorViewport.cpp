@@ -10,6 +10,8 @@
 
 namespace ZenEngine
 {
+    EditorViewport *EditorViewport::sViewportInstance;
+
     void EditorViewport::OnRegister()
     {
         Framebuffer::Properties props;
@@ -38,6 +40,7 @@ namespace ZenEngine
             ZE_CORE_TRACE("EditorViewport: FB resized to {} {}", mViewportDimensions.x, mViewportDimensions.y);
             mViewportFramebuffer->Resize((uint32_t)mViewportDimensions.x, (uint32_t)mViewportDimensions.y);
             mCamera.Resize(mViewportDimensions);
+            Renderer::Get().SetViewport(0.0f, 0.0f, (uint32_t)mViewportDimensions.x, (uint32_t)mViewportDimensions.y);
         }
 
         mViewportFocused = ImGui::IsWindowFocused();
@@ -78,9 +81,25 @@ namespace ZenEngine
         }
     }
 
+    void EditorViewport::BeginScene()
+    {
+        auto activeScene = Editor::Get().GetActiveScene();
+        if (activeScene == nullptr)
+            Renderer::Get().BeginScene(GetCameraView(), {});
+        else
+            Renderer::Get().BeginScene(GetCameraView(), activeScene->GetLights());
+    }
+
+    void EditorViewport::FlushScene()
+    {
+        Renderer::Get().Flush(mViewportFramebuffer, mVisualizedBuffer);
+    }
+
     void EditorViewport::OnUpdate(float inDeltaTime)
     {
         mCamera.OnUpdate(inDeltaTime);
+
+        bool ctrl = ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl);
 
         if (ImGui::IsKeyDown(ImGuiKey_R))
             mGizmoOperation = ImGuizmo::ROTATE;
@@ -90,6 +109,27 @@ namespace ZenEngine
 
         if (ImGui::IsKeyDown(ImGuiKey_S))
             mGizmoOperation = ImGuizmo::SCALE;
+
+        if (ctrl)
+        {
+            if (ImGui::IsKeyDown(ImGuiKey_1))
+                mVisualizedBuffer = Renderer::BufferType::FinalScene;
+
+            if (ImGui::IsKeyDown(ImGuiKey_2))
+                mVisualizedBuffer = Renderer::BufferType::BaseColor;
+
+            if (ImGui::IsKeyDown(ImGuiKey_3))
+                mVisualizedBuffer = Renderer::BufferType::Normal;
+
+            if (ImGui::IsKeyDown(ImGuiKey_4))
+                mVisualizedBuffer = Renderer::BufferType::Specular;
+
+            if (ImGui::IsKeyDown(ImGuiKey_5))
+                mVisualizedBuffer = Renderer::BufferType::Depth;
+
+            if (ImGui::IsKeyDown(ImGuiKey_6))
+                mVisualizedBuffer = Renderer::BufferType::WorldPosition;
+        }
     }
 
     void EditorViewport::OnEvent(const std::unique_ptr<Event> &inEvent)
@@ -99,19 +139,5 @@ namespace ZenEngine
         {
             mCamera.MouseScrolled(event->GetYOffset());
         });
-    }
-
-    void EditorViewport::OnBeginRenderGame()
-    {
-        mViewportFramebuffer->Bind();
-        Renderer::CameraView view{};
-        view.ProjectionMatrix = mCamera.GetProjection();
-        view.ViewMatrix = mCamera.GetView();
-        Renderer::Get().BeginScene(view);
-    }
-
-    void EditorViewport::OnEndRenderGame()
-    {
-        mViewportFramebuffer->Unbind();
     }
 }

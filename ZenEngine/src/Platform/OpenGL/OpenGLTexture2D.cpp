@@ -62,7 +62,9 @@ namespace ZenEngine
         uint32_t bpp = Texture2DFormatBytes(mProperties.Format);
         ZE_ASSERT_CORE_MSG(inSize == mProperties.Width * mProperties.Height * bpp, "Data must be entire texture!");
         glTextureSubImage2D(mRendererId, 0, 0, 0, mProperties.Width, mProperties.Height, Texture2DFormatToGLFormat(mProperties.Format), GL_UNSIGNED_BYTE, inData);
+        if (mProperties.GenerateMips) glGenerateTextureMipmap(mRendererId);
     }
+    
     void OpenGLTexture2D::Bind(uint32_t inSlot) const
     {
         glActiveTexture(GL_TEXTURE0 + inSlot);

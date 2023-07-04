@@ -26,6 +26,10 @@ namespace ZenEngine
             return mColorAttachmentsIds[inIndex]; 
         }
 
+        virtual void BindColorAttachmentTexture(uint32_t inIndex = 0, uint32_t inSlot = 0) const override;
+        virtual void BindDepthAttachmentTexture(uint32_t inSlot = 0) const override;
+        virtual void BindAllAttachments(uint32_t inStartingSlot = 0) const override;
+
         virtual const Properties &GetProperties() const override
         { 
             return mProperties;

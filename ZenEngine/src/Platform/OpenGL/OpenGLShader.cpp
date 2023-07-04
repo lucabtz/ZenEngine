@@ -18,6 +18,7 @@ namespace ZenEngine
         ZE_CORE_TRACE("Loading shader from file {}", inFilepath);
         auto shaderSource = Filesystem::ReadFileToString(inFilepath);
         std::filesystem::path shaderFilePath = inFilepath;
+        ZE_ASSERT_CORE_MSG(std::filesystem::exists(shaderFilePath), "The shader file {} does not exists", inFilepath);
         mName = shaderFilePath.filename().replace_extension("").string();
         CreateShader(shaderSource);
     }
@@ -86,6 +87,7 @@ namespace ZenEngine
 
     void OpenGLShader::CreateShader(const std::string &inSrc)
     {
+        ZE_CORE_INFO("Creating shader {}", mName);
         ShaderCompiler compiler(mName);
         auto res = compiler.Compile(inSrc);
         Reflect(res.VertexReflectionInfo);

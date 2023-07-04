@@ -37,14 +37,15 @@ namespace ZenEngine
         
         Renderer::Get().Init(mWindow);
 
-    #ifdef WITH_EDITOR
-        RenderCommand::SetClearColor({  0.1f, 0.105f, 0.11f, 1.0f });
-    #else
-        RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-    #endif
+        RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 0.0f });
 
         AssetManager::Get().Init();
 
+        EDITOR_ONLY(
+        mEditor = std::make_unique<Editor>(); 
+        mEditor->Init();
+        )
+    
         mIsRunning = true;
     }
 
@@ -52,21 +53,30 @@ namespace ZenEngine
     {
         for (auto &layer : mLayerStack)
             layer->OnUpdate(inDeltaTime);
+        EDITOR_ONLY(mEditor->OnUpdate(inDeltaTime);)
     }
 
     void Game::GameRender(float inDeltaTime)
     {
+    #ifdef WITH_EDITOR
+        mEditor->BeginScene();
+    #else
+        // TODO
+    #endif
+
         for (auto &layer : mLayerStack)
             layer->OnRender(inDeltaTime);
+        EDITOR_ONLY(mEditor->OnRender(inDeltaTime);)
+    
+    #ifdef WITH_EDITOR
+        mEditor->FlushScene();
+    #else
+        // TODO
+    #endif
     }
 
     void Game::Run()
     {
-
-    #ifdef WITH_EDITOR
-        ZE_CORE_INFO("Pushing editor layer");
-        mLayerStack.PushLayer(std::make_unique<Editor>());
-    #endif
         OnInitialize();
 
         mLastFrameTime = Time::GetTime();
@@ -76,27 +86,17 @@ namespace ZenEngine
             float ellapsed = (float)(time - mLastFrameTime);
             mLastFrameTime = time;
 
-
-
-        #ifdef WITH_EDITOR
-            Editor::Get().BeginRenderGame();
-        #endif
-            RenderCommand::Clear();
             GameRender(ellapsed);
-
-        #ifdef WITH_EDITOR
-            Editor::Get().EndRenderGame();
-        #endif
            
         // we renderer EditorGUI only if we are using the editor or we are targetting a debug build (for debug console and such)
         #if defined(WITH_EDITOR) || defined(ZE_DEBUG)
             EditorGUI::Get().BeginGUI();
-
+            
             for (auto &layer : mLayerStack)
-            {
                 layer->OnRenderEditorGUI();
-            }
-
+            
+            EDITOR_ONLY(mEditor->OnRenderEditorGUI();)
+            
             EditorGUI::Get().EndGUI();
         #endif
         
@@ -108,6 +108,7 @@ namespace ZenEngine
             }
 
             GameUpdate(ellapsed);
+        
             Renderer::Get().SwapBuffers();
         }
 
@@ -129,6 +130,8 @@ namespace ZenEngine
         });
 
         if (inEvent->Handled) return;
+
+        EDITOR_ONLY(mEditor->OnEvent(inEvent);)
 
         for (auto it = mLayerStack.rbegin(); it != mLayerStack.rend(); ++it)
         {

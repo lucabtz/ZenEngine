@@ -34,3 +34,12 @@
 // Entrypoint related macros
 #define SET_GAME_CLASS(classname) std::unique_ptr<ZenEngine::Game> CreateGame(const ZenEngine::RuntimeInfo &inRuntimeInfo) { return std::make_unique<classname>(inRuntimeInfo); }
 #define IMPLEMENT_GAME_CLASS(classname, gamename) classname(const ZenEngine::RuntimeInfo &inRuntimeInfo) : ZenEngine::Game(gamename, inRuntimeInfo) {}
+
+#ifdef WITH_EDITOR
+    #define EDITOR_ONLY(code) code
+#else
+    #define EDITOR_ONLY(code)
+#endif
+
+#define COMBINE_INNER(a, b) a##b
+#define COMBINE(a, b) COMBINE_INNER(a, b)

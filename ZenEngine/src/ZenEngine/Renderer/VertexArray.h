@@ -3,8 +3,6 @@
 #include <memory>
 #include <vector>
 
-#include "Renderer.h"
-
 namespace ZenEngine
 {
     class VertexArray

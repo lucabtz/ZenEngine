@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ZenEngine/Core/Macros.h"
-#include "Renderer.h"
 
 namespace ZenEngine
 {

@@ -23,6 +23,10 @@ namespace ZenEngine
 
         const glm::mat4 &GetProjection() { return mProjectionMatrix; }
         const glm::mat4 &GetView() { return mViewMatrix; }
+        glm::vec3 GetPosition() const;
+
+        float GetFarPlane() const { return mFarClip; }
+        float GetNearPlane() const { return mNearClip; }
 
     private:
         float mFOV = glm::radians(45.0f);
@@ -49,7 +53,6 @@ namespace ZenEngine
         void UpdateView();
         void UpdateProjection();
 
-        glm::vec3 CalculatePosition() const;
         glm::vec3 GetForwardDirection() const;
         glm::vec3 GetRightDirection() const;
         glm::vec3 GetUpDirection() const;

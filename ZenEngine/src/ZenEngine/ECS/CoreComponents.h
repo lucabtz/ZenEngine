@@ -64,15 +64,11 @@ namespace ZenEngine
             return glm::translate(glm::mat4(1.0f), Position) * rotation * glm::scale(glm::mat4(1.0f), Scale);
         }
 
-        void SetRotation(const glm::vec3 &inEulerAngles)
-        {
-            Rotation = glm::quat(glm::radians(inEulerAngles));
-        }
-
-        glm::vec3 GetEulerAngles()
-        {
-            return glm::degrees(glm::eulerAngles(Rotation));
-        }
+        void SetRotation(const glm::vec3 &inEulerAngles) { Rotation = glm::quat(glm::radians(inEulerAngles)); }
+        glm::vec3 GetEulerAngles() const { return glm::degrees(glm::eulerAngles(Rotation)); }
+        glm::vec3 GetForwardVector() const { return glm::rotate(Rotation, glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)); }
+        glm::vec3 GetRightVector() const { return glm::rotate(Rotation, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)); }
+        glm::vec3 GetUpVector() const { return glm::rotate(Rotation, glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)); }
     };
 
     class TransformComponentRenderer : public PropertyRendererFor<TransformComponent>
@@ -101,8 +97,33 @@ namespace ZenEngine
     public:
         StaticMeshComponentRenderer() : PropertyRendererFor("Static Mesh Component") {}
         virtual void RenderProperties(Entity inSelectedEntity, StaticMeshComponent &inStaticMeshComponent) override;
-
-        
     };
+
+    struct AmbientLightComponent
+    {
+        Renderer::AmbientLightInfo Info;
+    };
+
+    class AmbientLightComponentRenderer : public PropertyRendererFor<AmbientLightComponent>
+    {
+    public:
+        AmbientLightComponentRenderer() : PropertyRendererFor("Ambient Light Component") {}
+        virtual void RenderProperties(Entity inSelectedEntity, AmbientLightComponent &inAmbientLightComponent) override;
+    };
+
+    struct DirectionalLightComponent
+    {
+        glm::vec3 Color;
+        float Intensity;
+    };
+
+    class DirectionalLightComponentRenderer : public PropertyRendererFor<DirectionalLightComponent>
+    {
+    public:
+        DirectionalLightComponentRenderer() : PropertyRendererFor("Directional Light Component") {}
+        virtual void RenderProperties(Entity inSelectedEntity, DirectionalLightComponent &inDirectionalLightComponent) override;
+    };
+
+
 
 }

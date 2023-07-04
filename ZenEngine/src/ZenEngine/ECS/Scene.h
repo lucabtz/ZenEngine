@@ -2,6 +2,7 @@
 
 #include <entt/entt.hpp>
 #include "System.h"
+#include "ZenEngine/Renderer/Renderer.h"
 
 namespace ZenEngine
 {
@@ -26,6 +27,8 @@ namespace ZenEngine
     
         void OnRender(float inDeltaTime);
         void OnUpdate(float inDeltaTime);
+
+        Renderer::LightInfo GetLights();
 
         template <typename ... T>
         auto View()

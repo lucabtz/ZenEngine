@@ -10,6 +10,8 @@ namespace ZenEngine
         RegisterPropertyRenderer(std::make_unique<NameComponentRenderer>());
         RegisterPropertyRenderer(std::make_unique<TransformComponentRenderer>());
         RegisterPropertyRenderer(std::make_unique<StaticMeshComponentRenderer>());
+        RegisterPropertyRenderer(std::make_unique<DirectionalLightComponentRenderer>());
+        RegisterPropertyRenderer(std::make_unique<AmbientLightComponentRenderer>());
     }
 
     void PropertiesWindow::OnRenderWindow()

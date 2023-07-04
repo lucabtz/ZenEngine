@@ -19,9 +19,6 @@ namespace ZenEngine
         virtual void OnUpdate(float inDeltaTime) {}
         virtual void OnEvent(const std::unique_ptr<Event> &inEvent) {}
 
-        virtual void OnBeginRenderGame() {}
-        virtual void OnEndRenderGame() {}
-
         virtual bool HasViewMenuItem() const { return true; }
 
         void Open() { if (!mIsOpen) mIsOpen = true; }
