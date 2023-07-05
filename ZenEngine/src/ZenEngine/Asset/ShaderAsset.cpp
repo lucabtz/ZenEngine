@@ -21,34 +21,34 @@ namespace ZenEngine
         return shader->GetShaderUniformInfo();
     }
     
-    bool ShaderSerializer::Save(const std::shared_ptr<AssetInstance> &inAssetInstance, const Asset &inAsset) const
+    bool ShaderLoader::Save(const std::shared_ptr<Asset> &inAssetInstance, const AssetInfo &inAssetInfo) const
     {
         ZE_ASSERT_CORE_MSG(false, "ShaderSerializer::Save is not supposed to be called since there are no shader importers! Shaders use a text format an can just be copied in the assets directory.");
         return false;
     }
     
-    std::shared_ptr<AssetInstance> ShaderSerializer::Load(const Asset &inAsset) const
+    std::shared_ptr<Asset> ShaderLoader::Load(const AssetInfo &inAssetInfo) const
     {
         std::shared_ptr<ShaderAsset> shader = std::make_unique<ShaderAsset>();
-        shader->SetName(inAsset.Filepath.stem().string());
-        shader->SetSourceCode(Filesystem::ReadFileToString(inAsset.Filepath));
-        auto asset = std::static_pointer_cast<AssetInstance>(shader);
-        SetId(asset, GetAssetId(inAsset.Filepath));
+        shader->SetName(inAssetInfo.Filepath.stem().string());
+        shader->SetSourceCode(Filesystem::ReadFileToString(inAssetInfo.Filepath));
+        auto asset = std::static_pointer_cast<Asset>(shader);
+        SetId(asset, GetAssetId(inAssetInfo.Filepath));
         return asset;
     }
 
-    bool ShaderSerializer::CanSerialize(const std::filesystem::path &inFilepath) const
+    bool ShaderLoader::CanLoad(const std::filesystem::path &inFilepath) const
     {
         return (inFilepath.extension().string() == ".zshader" || inFilepath.extension().string() == ".hlsl");
     }
 
-    std::pair<UUID, const char*> ShaderSerializer::GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const
+    std::pair<UUID, const char*> ShaderLoader::GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const
     {
         auto id = GetAssetId(inFilepath);
         return { id, ShaderAsset::GetStaticAssetClassName() };
     }
 
-    UUID ShaderSerializer::GetAssetId(const std::filesystem::path &inFilepath) const
+    UUID ShaderLoader::GetAssetId(const std::filesystem::path &inFilepath) const
     {
         auto metaFilepath = (inFilepath.parent_path())/inFilepath.filename().replace_extension(".zmeta");
         UUID id;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AssetManager.h"
+#include "Asset.h"
 #include "ZenEngine/Renderer/Texture2D.h"
 
 namespace cereal
@@ -14,10 +14,11 @@ namespace cereal
 
 namespace ZenEngine
 {
-    class Texture2DAsset : public AssetInstance
+    class Texture2DAsset : public Asset
     {
     public:
         IMPLEMENT_ASSET_CLASS(ZenEngine::Texture2DAsset)
+        using Loader = BinaryLoader;
 
         std::shared_ptr<Texture2D> CreateOrGetTexture2D();
 
@@ -56,4 +57,4 @@ namespace ZenEngine
 }
 
 CEREAL_REGISTER_TYPE(ZenEngine::Texture2DAsset);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(ZenEngine::AssetInstance, ZenEngine::Texture2DAsset)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(ZenEngine::Asset, ZenEngine::Texture2DAsset)

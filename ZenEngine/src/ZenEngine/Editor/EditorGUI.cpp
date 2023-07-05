@@ -212,7 +212,7 @@ namespace ZenEngine
         ImGui::PopID();
     }
 
-    bool EditorGUI::InputAsset(const std::string &inLabel, const char *inAssetClassName, std::shared_ptr<AssetInstance> &outAsset, float inColumnWidth)
+    bool EditorGUI::InputAsset(const std::string &inLabel, const char *inAssetClassName, std::shared_ptr<Asset> &outAsset, float inColumnWidth)
     {
         bool ret = false;
 

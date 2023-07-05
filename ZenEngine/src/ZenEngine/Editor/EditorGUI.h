@@ -28,19 +28,19 @@ namespace ZenEngine
         static EditorGUI &Get() { ZE_ASSERT_CORE_MSG(sEditorGUIInstance != nullptr, "EditorGUI does not exist!"); return  *sEditorGUIInstance; }
 
         static void InputVec3(const std::string &inLabel, glm::vec3 &outValues, float inResetValue = 0.0f, float inColumnWidth = 100.0f);
-        static bool InputAsset(const std::string &inLabel, const char *inAssetClassName, std::shared_ptr<AssetInstance> &outAsset, float inColumnWidth = 100.0f);
+        static bool InputAsset(const std::string &inLabel, const char *inAssetClassName, std::shared_ptr<Asset> &outAsset, float inColumnWidth = 100.0f);
         static bool InputAssetUUID(const std::string &inLabel, const char *inAssetClassName, UUID &outAssetId, float inColumnWidth = 100.0f);
 
-        template <IsAssetInstance T>
+        template <IsAsset T>
         static bool InputAsset(const std::string &inLabel, std::shared_ptr<T> &outAsset, float inColumnWidth = 100.0f)
         {
-            std::shared_ptr<AssetInstance> asset = outAsset;
+            std::shared_ptr<Asset> asset = outAsset;
             bool ret = InputAsset(inLabel, T::GetStaticAssetClassName(), asset, inColumnWidth);
             outAsset = std::static_pointer_cast<T>(asset);
             return ret;
         }
 
-        template <IsAssetInstance T>
+        template <IsAsset T>
         static bool InputAssetUUID(const std::string &inLabel, UUID &outAssetId, float inColumnWidth = 100.0f)
         {
             return InputAssetUUID(inLabel, T::GetStaticAssetClassName(), outAssetId, inColumnWidth);

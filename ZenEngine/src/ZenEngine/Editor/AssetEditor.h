@@ -23,7 +23,7 @@ namespace ZenEngine
     template <typename T>
     concept IsAssetEditor = std::derived_from<T, AssetEditor> && !std::is_abstract_v<T>;
 
-    template <IsAssetInstance T>
+    template <IsAsset T>
     class AssetEditorFor : public AssetEditor
     {
     public:

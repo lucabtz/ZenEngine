@@ -1,16 +1,19 @@
 #pragma once
 
-#include "AssetInstance.h"
+#include "Asset.h"
 #include "ZenEngine/Renderer/Shader.h"
 #include "ZenEngine/ShaderCompiler/ShaderReflector.h"
 #include "ZenEngine/Renderer/RendererAPI.h"
 
 namespace ZenEngine
 {
-    class ShaderAsset : public AssetInstance
+    class ShaderLoader;
+    
+    class ShaderAsset : public Asset
     {
     public:
         IMPLEMENT_ASSET_CLASS(ZenEngine::ShaderAsset)
+        using Loader = ShaderLoader;
         ShaderAsset() = default;
 
         std::shared_ptr<Shader> CreateOrGetShaderProgram();
@@ -29,14 +32,14 @@ namespace ZenEngine
         std::shared_ptr<Shader> mShaderProgram;        
     };
 
-    class ShaderSerializer : public AssetSerializer
+    class ShaderLoader : public AssetLoader
     {
     public:
-        IMPLEMENT_SERIALIZER_CLASS(ZenEngine::ShaderSerializer)
+        IMPLEMENT_LOADER_CLASS(ZenEngine::ShaderLoader)
 
-        virtual bool Save(const std::shared_ptr<AssetInstance> &inAssetInstance, const Asset &inAsset) const override;
-        virtual std::shared_ptr<AssetInstance> Load(const Asset &inAsset) const override;
-        virtual bool CanSerialize(const std::filesystem::path &inFilepath) const override;
+        virtual bool Save(const std::shared_ptr<Asset> &inAssetInstance, const AssetInfo &inAsset) const override;
+        virtual std::shared_ptr<Asset> Load(const AssetInfo &inAsset) const override;
+        virtual bool CanLoad(const std::filesystem::path &inFilepath) const override;
         virtual std::pair<UUID, const char*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const override;
 
     private:

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "AssetInstance.h"
+#include "Asset.h"
 
 #include "Serialization.h"
 #include "ZenEngine/Renderer/VertexArray.h"
@@ -22,10 +22,11 @@ namespace ZenEngine
     };
     static_assert(sizeof(Vertex) == 8 * sizeof(float));
 
-    class StaticMesh : public AssetInstance
+    class StaticMesh : public Asset
     {
     public:
         IMPLEMENT_ASSET_CLASS(ZenEngine::StaticMesh)
+        using Loader = BinaryLoader;
 
         void SetVertices(const std::vector<Vertex> &inVertices) { mVertices = inVertices; mTainted = true; }
         void SetIndices(const std::vector<uint32_t> &inIndices) { mIndices = inIndices; mTainted = true; }
@@ -67,4 +68,4 @@ namespace ZenEngine
 }
 
 CEREAL_REGISTER_TYPE(ZenEngine::StaticMesh);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(ZenEngine::AssetInstance, ZenEngine::StaticMesh)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(ZenEngine::Asset, ZenEngine::StaticMesh)
