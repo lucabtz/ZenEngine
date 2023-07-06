@@ -56,7 +56,7 @@ namespace ZenEngine
         virtual bool CanLoad(const std::filesystem::path &inFilepath) const = 0;
         virtual std::pair<UUID, const char*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const = 0;
 
-        static const std::vector<AssetLoader *> GetAllLoaders() { return sAllLoaders; }
+        static const std::vector<AssetLoader *> &GetAllLoaders() { return sAllLoaders; }
     protected:
         void SetId(std::shared_ptr<Asset> &inAssetInstance, UUID inUUID) const { inAssetInstance->mId = inUUID; }
         
