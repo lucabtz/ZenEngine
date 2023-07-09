@@ -22,25 +22,33 @@
 #include <cereal/types/polymorphic.hpp>
 
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 #include <filesystem>
 
 namespace cereal
 {
     template <typename Archive>
-    void Serialize(Archive &inArchive, glm::vec2 &inVec)
+    void Serialize(Archive &outArchive, glm::vec2 &outVec)
     {
-        inArchive(inVec.x, inVec.y);
+        outArchive(outVec.x, outVec.y);
     }
 
     template <typename Archive>
-    void Serialize(Archive &inArchive, glm::vec3 &inVec)
+    void Serialize(Archive &outArchive, glm::vec3 &outVec)
     {
-        inArchive(inVec.x, inVec.y, inVec.z);
+        outArchive(outVec.x, outVec.y, outVec.z);
     }
 
     template <typename Archive>
-    void Serialize(Archive &inArchive, glm::vec4 &inVec)
+    void Serialize(Archive &outArchive, glm::vec4 &outVec)
     {
-        inArchive(inVec.x, inVec.y, inVec.z, inVec.w);
+        outArchive(outVec.x, outVec.y, outVec.z, outVec.w);
+    }
+
+    template <typename Archive>
+    void Serialize(Archive &outArchive, glm::quat &outQuat)
+    {
+        outArchive(outQuat.x, outQuat.y, outQuat.z, outQuat.w);
     }
 }

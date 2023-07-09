@@ -4,9 +4,6 @@
 [submodule "ZenEngine/vendor/glfw"]
 	path = ZenEngine/vendor/glfw
 	url = https://github.com/glfw/glfw
-[submodule "ZenEngine/vendor/glm"]
-	path = ZenEngine/vendor/glm
-	url = https://github.com/g-truc/glm
 [submodule "ZenEngine/vendor/SPIRV-Cross"]
 	path = ZenEngine/vendor/SPIRV-Cross
 	url = https://github.com/KhronosGroup/SPIRV-Cross
@@ -22,9 +19,3 @@
 [submodule "ZenEngine/vendor/ImGuizmo"]
 	path = ZenEngine/vendor/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
-[submodule "ZenEngine/vendor/hlsl2glslfork"]
-	path = ZenEngine/vendor/hlsl2glslfork
-	url = https://github.com/ekardnam/hlsl2glslfork
-[submodule "ZenEngine/vendor/yaml-cpp"]
-	path = ZenEngine/vendor/yaml-cpp
-	url = https://github.com/jbeder/yaml-cpp

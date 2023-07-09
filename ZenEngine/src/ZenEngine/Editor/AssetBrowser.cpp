@@ -9,6 +9,8 @@
 
 namespace ZenEngine
 {
+    AssetBrowser * AssetBrowser::sAssetBrowserInstance;
+    
     void AssetBrowser::OnRegister()
     {
         stbi_set_flip_vertically_on_load(1);

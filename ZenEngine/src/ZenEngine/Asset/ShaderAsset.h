@@ -8,7 +8,7 @@
 namespace ZenEngine
 {
     class ShaderLoader;
-    
+
     class ShaderAsset : public Asset
     {
     public:
@@ -29,20 +29,16 @@ namespace ZenEngine
         std::string mSourceCode;
 
         bool mTainted = false;
-        std::shared_ptr<Shader> mShaderProgram;        
+        std::shared_ptr<Shader> mShaderProgram;
     };
 
-    class ShaderLoader : public AssetLoader
+    class ShaderLoader : public MetaLoader
     {
     public:
         IMPLEMENT_LOADER_CLASS(ZenEngine::ShaderLoader)
 
-        virtual bool Save(const std::shared_ptr<Asset> &inAssetInstance, const AssetInfo &inAsset) const override;
-        virtual std::shared_ptr<Asset> Load(const AssetInfo &inAsset) const override;
+        virtual bool Save(const std::shared_ptr<Asset> &inAssetInstance, const std::filesystem::path &inFilepath) const override;
+        virtual std::shared_ptr<Asset> Load(const std::filesystem::path &inFilepath) const override;
         virtual bool CanLoad(const std::filesystem::path &inFilepath) const override;
-        virtual std::pair<UUID, const char*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const override;
-
-    private:
-        UUID GetAssetId(const std::filesystem::path &inFilepath) const;
     };
 }

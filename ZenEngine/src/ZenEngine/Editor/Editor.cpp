@@ -4,6 +4,7 @@
 #include "ZenEngine/Core/Game.h"
 #include "ZenEngine/Renderer/Renderer.h"
 #include "ZenEngine/Asset/AssetManager.h"
+#include "ZenEngine/Asset/ShaderAsset.h"
 
 #include "FileDialog.h"
 
@@ -87,6 +88,7 @@ namespace ZenEngine
 
         style.WindowMinSize.x = minWinSizeX;
 
+        bool newAssetPopup = false;
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("File"))
@@ -98,6 +100,9 @@ namespace ZenEngine
                 if (ImGui::MenuItem("Save Scene As...")) ZE_CORE_WARN("TODO: SaveLevelAs");
 
                 ImGui::Separator();
+
+                if (ImGui::MenuItem("New Asset...")) newAssetPopup = true;
+
 
                 if (ImGui::MenuItem("Import...")) ImportClicked();
 
@@ -168,6 +173,33 @@ namespace ZenEngine
         }
         for (auto id : toBeRemoved)
             mAssetEditors.erase(id);
+
+        if (newAssetPopup) ImGui::OpenPopup("NewAssetPopup");
+
+        if (ImGui::BeginPopupModal("NewAssetPopup", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::PushID("NewAssetPopup");
+            static std::string name;
+            EditorGUI::InputText("Asset Name", name);
+            // type for now is always shader
+
+            if (ImGui::Button("Create"))
+            {
+                auto filepath = AssetBrowser::Get().GetCurrentDirectory() / fmt::format("{}.hlsl", name);
+                std::shared_ptr<ShaderAsset> shader = std::make_shared<ShaderAsset>();
+                shader->SetName(name);
+                AssetManager::Get().SaveAsset(std::static_pointer_cast<Asset>(shader), filepath);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::PopID();
+            ImGui::EndPopup();
+        }
+
         ImGui::End();
     }
 

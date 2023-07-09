@@ -16,7 +16,6 @@
 
 namespace ZenEngine
 {
-
     struct NameComponent
     {
         std::string Name;
@@ -123,7 +122,5 @@ namespace ZenEngine
         DirectionalLightComponentRenderer() : PropertyRendererFor("Directional Light Component") {}
         virtual void RenderProperties(Entity inSelectedEntity, DirectionalLightComponent &inDirectionalLightComponent) override;
     };
-
-
 
 }

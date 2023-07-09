@@ -27,11 +27,6 @@ namespace ZenEngine
         BuildAssetDatabase();
     }
 
-    void AssetManager::RegisterImporter(std::unique_ptr<AssetImporter> inImporter)
-    {
-        mImporters.push_back(std::move(inImporter));
-    }
-
     void AssetManager::Import(const std::filesystem::path &inFilepath)
     {
         Import(inFilepath, sAssetDirectory);
@@ -64,7 +59,7 @@ namespace ZenEngine
                 for (auto &importedAsset : importer->Import(inFilepath))
                 {
                     mAssetDatabase[inUUID] = AssetInfo(inUUID, importedAsset, inDestinationFolder);
-                    SaveAsset(importedAsset.Instance, mAssetDatabase[inUUID]);
+                    SaveAsset(importedAsset.Instance, mAssetDatabase[inUUID].Filepath);
                 }
                 break;
             }
@@ -140,7 +135,7 @@ namespace ZenEngine
         }
 
         auto &loader = mAssetLoaders[asset.ClassName];
-        std::shared_ptr<Asset> assetInstance = loader->Load(asset);
+        std::shared_ptr<Asset> assetInstance = loader->Load(asset.Filepath);
 
         if (assetInstance == nullptr)
         {
@@ -159,14 +154,18 @@ namespace ZenEngine
     void AssetManager::RegisterCoreAssets()
     {
         RegisterAssetClass<StaticMesh>();
+        RegisterImporter<OBJImporter>();
+
         RegisterAssetClass<ShaderAsset>();
+        
         RegisterAssetClass<Texture2DAsset>();
+        RegisterImporter<STBImageImporter>();
     }
 
-    bool AssetManager::SaveAsset(const std::shared_ptr<Asset> &inAssetInstance, const AssetInfo &inAsset)
+    bool AssetManager::SaveAsset(const std::shared_ptr<Asset> &inAssetInstance, const std::filesystem::path &inFilepath)
     {
-        auto &loader = mAssetLoaders[inAsset.ClassName];
-        return loader->Save(inAssetInstance, inAsset);
+        auto &loader = mAssetLoaders[inAssetInstance->GetAssetClassName()];
+        return loader->Save(inAssetInstance, inFilepath);
     }
 
     void AssetManager::BuildAssetDatabaseFrom(const std::filesystem::path &inImportFolder)
@@ -216,53 +215,4 @@ namespace ZenEngine
         BuildAssetDatabaseFrom(sAssetDirectory);
     }
 
-    std::shared_ptr<Asset> BinaryLoader::Load(const AssetInfo &inAssetInfo) const
-    {
-        std::ifstream ifs(inAssetInfo.Filepath, std::ios::binary);
-        cereal::BinaryInputArchive archive(ifs);
-        UUID id;
-        std::shared_ptr<Asset> assetInstance;
-        std::string className;
-        try
-        {
-            archive(className, id, assetInstance);
-        }
-        catch (cereal::Exception e)
-        {
-            ZE_CORE_ERROR("{}", e.what());
-            return nullptr;
-        }
-        SetId(assetInstance, id);
-        return assetInstance;
-    }
-
-    bool BinaryLoader::Save(const std::shared_ptr<Asset> &inAssetInstance, const AssetInfo &inAssetInfo) const
-    {
-        if (std::filesystem::exists(inAssetInfo.Filepath))
-        {
-            ZE_CORE_ERROR("{} already exists!", inAssetInfo.Filepath);
-            return false;
-        }
-        std::ofstream os(inAssetInfo.Filepath, std::ios::binary);
-        cereal::BinaryOutputArchive archive(os);
-        std::string className = inAssetInstance->GetAssetClassName();
-        archive(className, inAssetInfo.Id, inAssetInstance);
-        return true;
-    }
-
-    bool BinaryLoader::CanLoad(const std::filesystem::path &inFilepath) const
-    {
-        // TODO think about this
-        return (inFilepath.extension().string() == ".zasset");
-    }
-    
-    std::pair<UUID, const char*> BinaryLoader::GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const
-    {
-        std::ifstream ifs(inFilepath, std::ios::binary);
-        cereal::BinaryInputArchive archive(ifs);
-        std::string className;
-        UUID id;
-        archive(className, id);
-        return { id, AssetManager::Get().GetAssetClassByName(className) };
-    }
 }

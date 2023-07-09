@@ -8,6 +8,7 @@
 #include <fstream>
 
 #include "Asset.h"
+#include "AssetLoader.h"
 #include "UUID.h"
 
 #include "Serialization.h"
@@ -46,45 +47,6 @@ namespace ZenEngine
         virtual std::vector<ImportedAsset> Import(const std::filesystem::path &inFilepath) = 0;
     };
 
-    class AssetLoader
-    {
-    public:
-        virtual ~AssetLoader() = default;
-        virtual const char *GetName() const = 0;
-        virtual bool Save(const std::shared_ptr<Asset> &inAssetInstance, const AssetInfo &inAssetInfo) const  = 0;
-        virtual std::shared_ptr<Asset> Load(const AssetInfo &inAssetInfo) const = 0;
-        virtual bool CanLoad(const std::filesystem::path &inFilepath) const = 0;
-        virtual std::pair<UUID, const char*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const = 0;
-
-        static const std::vector<AssetLoader *> &GetAllLoaders() { return sAllLoaders; }
-    protected:
-        void SetId(std::shared_ptr<Asset> &inAssetInstance, UUID inUUID) const { inAssetInstance->mId = inUUID; }
-        
-        static std::vector<AssetLoader *> sAllLoaders;
-    };
-
-#define IMPLEMENT_LOADER_CLASS(fqname) static const char *GetStaticName() { return #fqname; }\
-    virtual const char *GetName() const { return GetStaticName(); }\
-    static AssetLoader *Get() \
-    {\
-        static std::unique_ptr<AssetLoader> instance;\
-        if (instance == nullptr) { instance = std::make_unique<:: ##fqname>(); sAllLoaders.push_back(instance.get()); }\
-        return instance.get();\
-    }
-
-
-    class BinaryLoader : public AssetLoader
-    {
-    public:
-        IMPLEMENT_LOADER_CLASS(ZenEngine::BinaryLoader)
-
-        virtual bool Save(const std::shared_ptr<Asset> &inAssetInstance, const AssetInfo &inAssetInfo) const override;
-        virtual std::shared_ptr<Asset> Load(const AssetInfo &inAssetInfo) const override;
-        virtual bool CanLoad(const std::filesystem::path &inFilepath) const override;
-        virtual std::pair<UUID, const char*> GetAssetIdAssetClass(const std::filesystem::path &inFilepath) const override;
-    };
-
-
     class AssetManager
     {
     public:
@@ -106,8 +68,12 @@ namespace ZenEngine
             mAssetLoaders[AssetClass::GetStaticAssetClassName()] = AssetClass::Loader::Get();
         }
 
-        void RegisterImporter(std::unique_ptr<AssetImporter> inImporter);
-
+        template <typename Importer>
+        void RegisterImporter()
+        {
+            mImporters.push_back(std::make_unique<Importer>());
+        }
+        
         void Import(const std::filesystem::path &inFilepath);
         void Import(const std::filesystem::path &inFilepath, const std::filesystem::path &inDestinationFolder);
         void Import(const std::filesystem::path &inFilepath, const std::filesystem::path &inDestinationFolder, UUID inUUID);
@@ -128,6 +94,7 @@ namespace ZenEngine
         }
 
         const char *GetAssetClassByName(const std::string &inName) const { return mAssetClasses.at(inName); }
+        bool SaveAsset(const std::shared_ptr<Asset> &inAssetInstance, const std::filesystem::path &inFilepath);
     private:
         std::unordered_map<std::string, const char *> mAssetClasses;
         std::unordered_map<const char *, AssetLoader *> mAssetLoaders;
@@ -139,9 +106,8 @@ namespace ZenEngine
         static std::unique_ptr<AssetManager> sAssetManagerInstance;
     
         void RegisterCoreAssets();
-
-        bool SaveAsset(const std::shared_ptr<Asset> &inAssetType, const AssetInfo &inAsset);
-        void BuildAssetDatabaseFrom(const std::filesystem::path &inImportFolder);
         void ImportDefaultAssets();
+
+        void BuildAssetDatabaseFrom(const std::filesystem::path &inImportFolder);
     };
 }
