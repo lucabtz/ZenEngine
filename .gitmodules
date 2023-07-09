@@ -25,3 +25,6 @@
 [submodule "ZenEngine/vendor/hlsl2glslfork"]
 	path = ZenEngine/vendor/hlsl2glslfork
 	url = https://github.com/ekardnam/hlsl2glslfork
+[submodule "ZenEngine/vendor/yaml-cpp"]
+	path = ZenEngine/vendor/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

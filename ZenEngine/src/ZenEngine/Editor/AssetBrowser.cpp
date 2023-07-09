@@ -38,13 +38,13 @@ namespace ZenEngine
     void AssetBrowser::OnRenderWindow()
     {
         static float padding = 16.0f;
-		static float thumbnailSize = 128.0f;
-		float cellSize = thumbnailSize + padding;
+        static float thumbnailSize = 128.0f;
+        float cellSize = thumbnailSize + padding;
 
-		float panelWidth = ImGui::GetContentRegionAvail().x;
-		int columnCount = (int)(panelWidth / cellSize);
-		if (columnCount < 1)
-			columnCount = 1;
+        float panelWidth = ImGui::GetContentRegionAvail().x;
+        int columnCount = (int)(panelWidth / cellSize);
+        if (columnCount < 1)
+            columnCount = 1;
 
         ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
         std::filesystem::path currentPath = "";
@@ -88,20 +88,20 @@ namespace ZenEngine
             ImGui::EndPopup();
         }
 
-		ImGui::Columns(columnCount, 0, false);
+        ImGui::Columns(columnCount, 0, false);
 
-		for (auto& directoryEntry : std::filesystem::directory_iterator(mCurrentDirectory))
-		{
-			const auto& path = directoryEntry.path();
+        for (auto& directoryEntry : std::filesystem::directory_iterator(mCurrentDirectory))
+        {
+            const auto& path = directoryEntry.path();
 
             // ignore metadata files
             if (path.extension().string() == ".zmeta") continue;
-			
+            
             std::string filenameString = path.filename().string();
-			
-			ImGui::PushID(filenameString.c_str());
+            
+            ImGui::PushID(filenameString.c_str());
 
-			std::shared_ptr<Texture2D> icon;
+            std::shared_ptr<Texture2D> icon;
             bool isDirectory = std::filesystem::is_directory(path);
             bool isRenamingThisFile = mCurrentlyRenaming.has_value() && mCurrentlyRenaming == path;
             const char *className = nullptr;
@@ -125,10 +125,10 @@ namespace ZenEngine
                     icon = mDefaultFileIcon;
                 }
             }
-			
+            
             ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
-			ImGui::ImageButton(reinterpret_cast<ImTextureID>(icon->GetRendererID()), { thumbnailSize, thumbnailSize }, { 0 , 1 }, { 1, 0 });
-			ImGui::PopStyleColor();
+            ImGui::ImageButton(reinterpret_cast<ImTextureID>(icon->GetRendererID()), { thumbnailSize, thumbnailSize }, { 0 , 1 }, { 1, 0 });
+            ImGui::PopStyleColor();
             if (isDirectory)
             {
                 if (ImGui::BeginDragDropTarget())
@@ -177,15 +177,15 @@ namespace ZenEngine
                 ImGui::EndPopup();
             }
 
-			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-			{
-				if (directoryEntry.is_directory())
-					mCurrentDirectory /= path.filename();
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+            {
+                if (directoryEntry.is_directory())
+                    mCurrentDirectory /= path.filename();
                 else if (id.has_value())
                 {
                     Editor::Get().OpenAsset(id.value());
                 }
-			}
+            }
             if (isRenamingThisFile)
             {
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth()/2 - ImGui::CalcTextSize(mNewFilename.c_str()).x/2 - ImGui::GetStyle().ItemSpacing.x);
@@ -202,15 +202,15 @@ namespace ZenEngine
             else
             {
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth()/2 - ImGui::CalcTextSize(path.stem().string().c_str()).x/2 - ImGui::GetStyle().ItemSpacing.x);
-			    ImGui::TextWrapped(path.stem().string().c_str());
+                ImGui::TextWrapped(path.stem().string().c_str());
             }
 
-			ImGui::NextColumn();
+            ImGui::NextColumn();
 
-			ImGui::PopID();
-		}
+            ImGui::PopID();
+        }
 
-		ImGui::Columns(1);
+        ImGui::Columns(1);
     }
 
     void AssetBrowser::SetAssetIcon(const char *inAssetClassName, const std::filesystem::path &inIconPath)

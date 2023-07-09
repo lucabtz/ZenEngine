@@ -236,6 +236,7 @@ namespace ZenEngine
 
     void Editor::NewScene()
     {
+        CurrentlySelectedEntity = Entity::Null;
         mActiveScene = std::make_shared<Scene>();
     }
 
