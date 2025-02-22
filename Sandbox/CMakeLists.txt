@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 project(ZenEngineSandbox)
 
 file(GLOB_RECURSE sandbox-sources src/*.cpp src/*.h)

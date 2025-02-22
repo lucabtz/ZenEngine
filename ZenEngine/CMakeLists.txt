@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 project(ZenEngine)
 
 file(GLOB_RECURSE engine-sources src/ZenEngine/*.cpp src/ZenEngine/*.h src/Platform/*.h src/Platform/*.cpp)

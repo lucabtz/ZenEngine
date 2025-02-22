@@ -24,6 +24,9 @@ namespace ZenEngine
         
             spirv_cross::SPIRType Type_Internal;
             spirv_cross::TypeID TypeId_Internal;
+
+            // hack to make it work with newer spirv_cross version where spirv_cross::SPIRType does not have a default constructor
+            VariableInfo(): Type_Internal(spv::Op::OpNop) {}
         };
         
         struct UniformBufferInfo

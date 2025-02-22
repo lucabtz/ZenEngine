@@ -12,7 +12,16 @@
             "cStandard": "c17",
             "cppStandard": "c++20",
             "intelliSenseMode": "windows-msvc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "includePath": [
+                "C:\\VulkanSDK\\1.4.304.1\\Include",
+                "${workspaceFolder}/ZenEngine/src",
+                "${workspaceFolder}/ZenEngine/vendor/spdlog/include",
+                "${workspaceFolder}/ZenEngine/vendor/cereal/include",
+                "${workspaceFolder}/ZenEngine/vendor/glad/include",
+                "${workspaceFolder}/ZenEngine/vendor/imgui",
+                "${workspaceFolder}/ZenEngine/vendor/ImGuizmo"
+            ]
         }
     ],
     "version": 4
